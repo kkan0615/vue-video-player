@@ -3,9 +3,10 @@
   "files": [
     "dist"
   ],
-  "version": "0.0.2",
+  "version": "0.0.2.1",
   "main": "./dist/vue-video-player.umd.js",
   "module": "./dist/vue-video-player.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/vue-video-player.es.js",
@@ -15,10 +16,12 @@
   },
   "scripts": {
     "dev": "vite",
+    "build2": "vite build && vue-tsc --emitDeclarationOnly && move dist/src dist/types",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rollup/plugin-typescript": "^8.3.2",
     "sass": "^1.51.0",
     "vue": "^3.2.25"
   },

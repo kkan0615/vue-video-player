@@ -1,13 +1,22 @@
 import { defineConfig } from 'vite'
 import * as path from 'path'
 import vue from '@vitejs/plugin-vue'
+import typescript from '@rollup/plugin-typescript'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    typescript({
+      tsconfig: './tsconfig.json',
+      compilerOptions: {
+        declaration: true,
+      },
+    }),
+    vue(),
+  ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/main.ts'),
+      entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'VueVideoPlayer',
       fileName: (format) => `vue-video-player.${format}.js`
     },

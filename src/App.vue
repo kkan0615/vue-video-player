@@ -45,6 +45,8 @@ const videoSrc = computed(() => {
   lang="scss"
 >
 .vue-video-player-container {
+  color: white;
+  background-color: grey;
   height: 500px;
   width: 500px;
 }
