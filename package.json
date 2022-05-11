@@ -1,17 +1,17 @@
 {
-  "name": "vue-video-player",
-  "private": true,
+  "name": "@requiem/vue-video-player",
   "files": [
     "dist"
   ],
-  "version": "0.0.0",
+  "version": "0.0.2",
   "main": "./dist/vue-video-player.umd.js",
   "module": "./dist/vue-video-player.es.js",
   "exports": {
     ".": {
       "import": "./dist/vue-video-player.es.js",
       "require": "./dist/vue-video-player.umd.js"
-    }
+    },
+    "./dist/style.css": "./dist/style.css"
   },
   "scripts": {
     "dev": "vite",
