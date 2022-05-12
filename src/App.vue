@@ -12,7 +12,7 @@
         class="vue-video-player-video"
       >
         <source
-          src="./assets/sample.mp4"
+          :src="videoSrc"
           type="video/webm"
         >
       </video>
@@ -54,7 +54,7 @@ const props = defineProps({
   src: {
     type: String,
     required: false,
-    default: './assets/sample.mp4',
+    default: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
   }
 })
 
