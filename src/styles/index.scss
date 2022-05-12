@@ -1,8 +1,10 @@
+@import "./variables";
+
 .vue-video-player-root-container {
-  color: white;
-  background-color: grey;
-  height: 500px;
-  width: 500px;
+  background: $vue-video-player-background;
+  color: $vue-video-player-primary-color;
+  height: 100%;
+  width: 100%;
 }
 
 .vue-video-player-video-container {
@@ -17,7 +19,6 @@
 }
 
 .vue-video-player-middle-button {
-  color: black;
   position: absolute;
   z-index: 1;
   left: 50%;
@@ -26,11 +27,36 @@
 
 .vue-video-player-controller {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   z-index: 1;
   width: 100%;
   bottom: 0;
+  min-height: 40px; // @TODO: Check youtube size
+}
+
+.vue-video-player-controller-progress-bar-container {
+  display: flex;
+  height: 5px;
+  width: 100%;
+  cursor: pointer;
+  background-color: $vue-video-player-progress-bar-background;
+}
+
+.vue-video-player-controller-progress-bar-running {
+  height: 100%;
+  overflow: hidden;
+  background-color: $vue-video-player-primary-color;
+}
+
+.vue-video-player-controller-menu {
+  padding-right: 5px;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
 }
 
 .vue-video-player-controller-play-button {
-  color: black;
+//
 }

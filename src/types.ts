@@ -1,2 +1,4 @@
-export type VueDatePickerProps =
+export type VueVideoPlayerProps =
     'src'
+
+export type VueVideoPlayerVideoStatus = 'stop' | 'play' | 'pause'
