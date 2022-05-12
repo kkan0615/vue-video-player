@@ -1,12 +1,37 @@
 <template>
   <div
-    class="vue-video-player-container"
+    class="vue-video-player-root-container"
   >
     <!-- If video is exist -->
     <div
       v-if="videoSrc"
+      class="vue-video-player-video-container"
     >
-      video will be here
+      <video
+        ref="videoRef"
+        class="vue-video-player-video"
+      >
+        <source
+          src="./assets/sample.mp4"
+          type="video/webm"
+        >
+      </video>
+      <div
+        class="vue-video-player-middle-button"
+        @click="onClickPlayBtn"
+      >
+        play
+      </div>
+      <div
+        class="vue-video-player-controller"
+      >
+        <div
+          class="vue-video-player-controller-play-button"
+          @click="onClickPlayBtn"
+        >
+          play
+        </div>
+      </div>
     </div>
     <!-- If video is not exist -->
     <div
@@ -23,15 +48,17 @@ export default {
 </script>
 <script setup lang="ts">
 
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   src: {
     type: String,
     required: false,
-    default: '',
+    default: './assets/sample.mp4',
   }
 })
+
+const videoRef = ref<HTMLVideoElement>()
 
 /**
  * Real Src
@@ -40,14 +67,21 @@ const videoSrc = computed(() => {
   return props.src
 })
 
+const onClickPlayBtn = () => {
+  if (videoRef.value?.paused) {
+    videoRef.value?.play()
+  }
+}
+
+const onClickPauseBtn = () => {
+  if (!videoRef.value?.paused) {
+    videoRef.value?.pause()
+  }
+}
+
 </script>
 <style
   lang="scss"
 >
-.vue-video-player-container {
-  color: white;
-  background-color: grey;
-  height: 500px;
-  width: 500px;
-}
+@import "./styles";
 </style>

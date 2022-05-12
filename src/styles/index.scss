@@ -1,0 +1,36 @@
+.vue-video-player-root-container {
+  color: white;
+  background-color: grey;
+  height: 500px;
+  width: 500px;
+}
+
+.vue-video-player-video-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.vue-video-player-video {
+  height: 100%;
+  width: 100%;
+}
+
+.vue-video-player-middle-button {
+  color: black;
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+}
+
+.vue-video-player-controller {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  bottom: 0;
+}
+
+.vue-video-player-controller-play-button {
+  color: black;
+}
