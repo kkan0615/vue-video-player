@@ -25,7 +25,8 @@
   "dependencies": {
     "@rollup/plugin-typescript": "^8.3.2",
     "sass": "^1.51.0",
-    "vue": "^3.2.25"
+    "vue": "^3.2.25",
+    "vue-material-design-icons": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.31",

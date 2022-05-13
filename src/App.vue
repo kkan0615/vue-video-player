@@ -24,7 +24,9 @@
         class="vue-video-player-middle-button"
         @click="onClickPlayBtn"
       >
-        play
+        <button>
+          <m-play-icon />
+        </button>
       </div>
       <div
         class="vue-video-player-controller"
@@ -44,11 +46,26 @@
           class="vue-video-player-controller-menu"
         >
           <div
-            class="vue-video-player-controller-play-button"
-            @click="playOrPause"
+            class="vue-video-player-controller-button"
           >
-            play
+            <button
+              v-if="videoStatus === 'play'"
+              @click="playOrPause"
+            >
+              <m-pause-icon />
+            </button>
+            <button
+              v-else
+              @click="playOrPause"
+            >
+              <m-play-icon />
+            </button>
           </div>
+          <volume-controller
+            :volume="videoVolume"
+            @update:volume="onUpdateVolume"
+          />
+          <!-- Timer -->
           <div>
             {{ formattedCurrentTime }} / {{ formattedDuration }}
           </div>
@@ -69,9 +86,11 @@ export default {
 }
 </script>
 <script setup lang="ts">
-
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { VueVideoPlayerVideoStatus } from './types'
+import VolumeController from './components/VolumeController.vue'
+import MPlayIcon from 'vue-material-design-icons/Play.vue'
+import MPauseIcon from 'vue-material-design-icons/Pause.vue'
 
 const props = defineProps({
   src: {
@@ -88,6 +107,7 @@ const bufferBarPercentage = ref(50)
 const duration = ref(0)
 const currentTime = ref(0)
 const timer = ref<NodeJS.Timer | null>(null)
+const videoVolume = ref(0)
 /* Error message */
 const errorMsg = ref('')
 
@@ -121,10 +141,14 @@ onMounted(() => {
     errorMsg.value = 'no video'
   }
 
+  window.addEventListener('keydown', onKeydown)
+
 })
 
 onBeforeUnmount(() => {
   destroyTimer()
+
+  window.removeEventListener('keydown', onKeydown)
 })
 
 /**
@@ -133,6 +157,7 @@ onBeforeUnmount(() => {
 const onCanplay = () => {
   /* Set the duration */
   duration.value = videoRef.value?.duration || 0
+  videoVolume.value = videoRef.value?.volume || 0
 }
 
 const onPlay = () => {
@@ -174,6 +199,21 @@ const onClickPlayBtn = () => {
 const onClickPauseBtn = () => {
   if (!videoRef.value?.paused) {
     videoRef.value?.pause()
+  }
+}
+
+const onUpdateVolume = (newVolume: number) => {
+  if (videoRef.value) {
+    videoRef.value.volume = newVolume
+    videoVolume.value = newVolume
+  }
+}
+
+const onKeydown = (event: KeyboardEvent) => {
+  switch (event.code) {
+    case 'Space':
+      playOrPause()
+      break
   }
 }
 

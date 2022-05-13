@@ -5,6 +5,24 @@
   color: $vue-video-player-primary-color;
   height: 100%;
   width: 100%;
+
+  /**
+    Full size of screen
+   */
+  &--full {
+    height: 100vh;
+    width: 100vw;
+  }
+
+  button, input[type="submit"], input[type="reset"] {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+  }
 }
 
 .vue-video-player-video-container {
@@ -57,6 +75,40 @@
   flex-grow: 1;
 }
 
-.vue-video-player-controller-play-button {
-//
+.vue-video-player-controller-button {
+  padding-top: 3px;
+  margin-right: 5px;
+}
+
+.vue-video-player-controller-volume-controller {
+  min-width: 52px;
+  display: flex;
+  button {
+    padding-top: 1px;
+  }
+
+  &--slider-container {
+    padding-top: 2px;
+    flex-grow: 1;
+  }
+
+  //&--slider ::-webkit-slider-thumb {
+  //  -webkit-appearance: none;
+  //  appearance: none;
+  //  width: 25px;
+  //  height: 25px;
+  //  background: red;
+  //  cursor: pointer;
+  //}
+}
+
+.vue-video-player-controller-volume-controller--slider {
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: red;
+    cursor: pointer;
+  }
 }

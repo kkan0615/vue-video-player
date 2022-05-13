@@ -37,7 +37,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      'devextreme/ui': 'devextreme/esm/ui'
     },
   },
+  server: {
+    open: true,
+  }
 })
