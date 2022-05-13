@@ -80,11 +80,6 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'VueVideoPlayer',
-}
-</script>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { VueVideoPlayerVideoStatus } from './types'
@@ -232,6 +227,13 @@ const destroyTimer = () => {
 
 initTimer()
 
+
+/**
+ * Expose
+ */
+defineExpose({
+  playOrPause,
+})
 </script>
 <style
   lang="scss"

@@ -38,17 +38,16 @@ import MVolumeLow from 'vue-material-design-icons/VolumeLow.vue'
 import MVolumeHigh from 'vue-material-design-icons/VolumeHigh.vue'
 import { computed } from 'vue'
 
-const props = defineProps({
-  volume: {
-    type: Number,
-    required: false,
-    default: 0,
-  }
-})
+const props = defineProps<{
+  volume?: number
+}>()
+
 
 const formattedVolume = computed(() => props.volume ? props.volume * 100 : 0)
 
-const emits = defineEmits(['update:volume'])
+const emits = defineEmits<{
+  (e: 'update:volume', newVolume: number): void
+}>()
 
 const silent = () => {
   emits('update:volume', 0)
