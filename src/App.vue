@@ -13,6 +13,7 @@
         @play="onPlay"
         @pause="onPause"
         @ended="onEnded"
+        @canplay="onCanplay"
       >
         <source
           :src="videoSrc"
@@ -48,6 +49,9 @@
           >
             play
           </div>
+          <div>
+            {{ formattedCurrentTime }} / {{ formattedDuration }}
+          </div>
         </div>
       </div>
     </div>
@@ -66,7 +70,7 @@ export default {
 </script>
 <script setup lang="ts">
 
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { VueVideoPlayerVideoStatus } from './types'
 
 const props = defineProps({
@@ -81,6 +85,9 @@ const props = defineProps({
 const videoRef = ref<HTMLVideoElement>()
 const videoStatus = ref<VueVideoPlayerVideoStatus>('stop')
 const bufferBarPercentage = ref(50)
+const duration = ref(0)
+const currentTime = ref(0)
+const timer = ref<NodeJS.Timer | null>(null)
 /* Error message */
 const errorMsg = ref('')
 
@@ -92,31 +99,56 @@ const videoSrc = computed(() => {
 })
 
 const runningBarPercentage = computed(() => {
-  let result = 0
-  if (videoRef.value?.currentTime && videoRef.value?.duration) {
-    result = videoRef.value?.duration / videoRef.value?.currentTime * 100
-  }
+  return (currentTime.value / duration.value) * 100
+})
 
-  return result
+const formattedDuration = computed(() => {
+  const fixedSeconds = parseFloat(duration.value.toFixed(2))
+  const minutes = parseInt((fixedSeconds / 60).toString())
+  const seconds =  (parseInt((fixedSeconds % 60).toString()) || 0).toString().padStart(2, '0')
+  return `${minutes}:${seconds}`
+})
+
+const formattedCurrentTime = computed(() => {
+  const fixedSeconds = parseFloat(currentTime.value.toFixed(2))
+  const minutes = parseInt((fixedSeconds / 60).toString())
+  const seconds =  (parseInt((fixedSeconds % 60).toString()) || 0).toString().padStart(2, '0')
+  return `${minutes}:${seconds}`
 })
 
 onMounted(() => {
   if (!props.src) {
     errorMsg.value = 'no video'
   }
+
 })
 
+onBeforeUnmount(() => {
+  destroyTimer()
+})
+
+/**
+ * When the video is ready to run
+ */
+const onCanplay = () => {
+  /* Set the duration */
+  duration.value = videoRef.value?.duration || 0
+}
+
 const onPlay = () => {
+  if (!timer.value) {
+    initTimer()
+  }
   videoStatus.value = 'play'
 }
 
 const onPause = () => {
+  destroyTimer()
   videoStatus.value = 'pause'
 }
 
 const onEnded = () => {
   videoStatus.value = 'stop'
-
 }
 
 const playOrPause = () => {
@@ -144,6 +176,21 @@ const onClickPauseBtn = () => {
     videoRef.value?.pause()
   }
 }
+
+const initTimer = () => {
+  timer.value = setInterval(() => {
+    currentTime.value = videoRef.value?.currentTime || 0
+  }, 100)
+}
+
+const destroyTimer = () => {
+  if (timer.value) {
+    clearInterval(timer.value)
+    timer.value = null
+  }
+}
+
+initTimer()
 
 </script>
 <style
