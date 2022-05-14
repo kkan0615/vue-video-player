@@ -2,7 +2,9 @@
   <div
     class="vue-video-player-controller-button vue-video-player-controller-volume-controller"
   >
-    <button>
+    <button
+      @click="silentOrBack"
+    >
       <m-volume-off
         v-if="volume === 0"
       />
@@ -36,7 +38,7 @@ export default {
 import MVolumeOff from 'vue-material-design-icons/VolumeOff.vue'
 import MVolumeLow from 'vue-material-design-icons/VolumeLow.vue'
 import MVolumeHigh from 'vue-material-design-icons/VolumeHigh.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   volume?: number
@@ -49,12 +51,22 @@ const emits = defineEmits<{
   (e: 'update:volume', newVolume: number): void
 }>()
 
-const silent = () => {
-  emits('update:volume', 0)
+const lastVolume = ref(0)
+
+const silentOrBack = () => {
+  if (!props.volume) {
+    if (!lastVolume.value)
+      lastVolume.value = 100
+    emits('update:volume', lastVolume.value / 100)
+  } else {
+    emits('update:volume', 0)
+  }
 }
 
 const onInputRange = (event: Event) => {
   const target = event.target as HTMLInputElement
+
+  lastVolume.value = target.valueAsNumber
   emits('update:volume', target.valueAsNumber / 100)
 }
 
