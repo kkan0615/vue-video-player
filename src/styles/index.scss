@@ -97,6 +97,8 @@
     display: flex;
   }
 
+  // @TODO: Watch following link https://codepen.io/nourabusoud/pen/YeMOVv
+
   input[type="range"] {
     -webkit-appearance: none;
     width: 100%;
@@ -105,7 +107,6 @@
     background: linear-gradient(to right, #50299c, #7a00ff 0%, #d3edff 100%, #dee1e2 100%);
   }
 
-  //https://codepen.io/nourabusoud/pen/YeMOVv tmr
 
   input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
