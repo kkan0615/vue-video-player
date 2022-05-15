@@ -44,14 +44,14 @@ const props = defineProps<{
   volume?: number
 }>()
 
-
-const formattedVolume = computed(() => props.volume ? props.volume * 100 : 0)
-
 const emits = defineEmits<{
   (e: 'update:volume', newVolume: number): void
 }>()
 
+const rangeInputRef = ref<HTMLInputElement>()
 const lastVolume = ref(0)
+
+const formattedVolume = computed(() => props.volume ? props.volume * 100 : 0)
 
 const silentOrBack = () => {
   if (!props.volume) {
@@ -65,8 +65,8 @@ const silentOrBack = () => {
 
 const onInputRange = (event: Event) => {
   const target = event.target as HTMLInputElement
-
   lastVolume.value = target.valueAsNumber
+
   emits('update:volume', target.valueAsNumber / 100)
 }
 
