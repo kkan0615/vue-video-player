@@ -169,7 +169,7 @@ const duration = ref(0)
 const currentTime = ref(0)
 const timer = ref<NodeJS.Timer | null>(null)
 const videoVolume = ref(0)
-const isFullScreen = ref(true)
+const isFullScreen = ref(false)
 /* Error message */
 const errorMsg = ref('')
 
@@ -266,6 +266,12 @@ const onClickPauseBtn = () => {
 
 const toggleIsFullScreen = () => {
   isFullScreen.value = !isFullScreen.value
+
+  if (isFullScreen.value) {
+    document.documentElement.requestFullscreen()
+  } else {
+    document.exitFullscreen()
+  }
 }
 
 const onUpdateVolume = (newVolume: number) => {
