@@ -90,17 +90,16 @@
             <div
               style="display: flex"
             >
-              <div>
-                <button
-                  @click="toggleIsFullScreen"
-                >
-                  <m-fullscreen-exit-icon
-                    v-if="isFullScreen"
-                  />
-                  <m-fullscreen-icon
-                    v-else
-                  />
-                </button>
+              <div
+                class="cursor-pointer"
+                @click="toggleIsFullScreen"
+              >
+                <m-fullscreen-exit-icon
+                  v-if="isFullScreen"
+                />
+                <m-fullscreen-icon
+                  v-else
+                />
               </div>
 
               <slot
@@ -204,13 +203,14 @@ onMounted(() => {
   }
 
   window.addEventListener('keydown', onKeydown)
-
+  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onBeforeUnmount(() => {
   destroyTimer()
 
   window.removeEventListener('keydown', onKeydown)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 
 /**
@@ -265,9 +265,15 @@ const onClickPauseBtn = () => {
 }
 
 const toggleIsFullScreen = () => {
-  isFullScreen.value = !isFullScreen.value
-
-  if (isFullScreen.value) {
+  // @TODO: If there is no bug when publish, remove following comments
+  // isFullScreen.value = !isFullScreen.value
+  //
+  // if (isFullScreen.value) {
+  //   document.documentElement.requestFullscreen()
+  // } else {
+  //   document.exitFullscreen()
+  // }
+  if (!isFullScreen.value) {
     document.documentElement.requestFullscreen()
   } else {
     document.exitFullscreen()
@@ -286,6 +292,16 @@ const onKeydown = (event: KeyboardEvent) => {
     case 'Space':
       playOrPause()
       break
+  }
+}
+
+const onFullscreenChange = (event: any) => {
+  const fs = document as any
+  // console.log('test')
+  if (!fs.webkitIsFullScreen && !fs.mozFullScreen && !fs.msFullscreenElement) {
+    isFullScreen.value = false
+  } else {
+    isFullScreen.value = true
   }
 }
 
