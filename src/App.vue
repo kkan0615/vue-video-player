@@ -1,6 +1,10 @@
 <template>
   <div
     class="vue-video-player-root-container"
+    :style="{
+      height: isFullScreen ? '100vh' : height,
+      width: isFullScreen ? '100vw' : width,
+    }"
   >
     <!-- If video is exist -->
     <div
@@ -21,53 +25,101 @@
         >
       </video>
       <div
-        class="vue-video-player-middle-button"
-        @click="onClickPlayBtn"
-      >
-        <button>
-          <m-play-icon />
-        </button>
-      </div>
-      <div
-        class="vue-video-player-controller"
+        class="vue-video-player-controller-container"
       >
         <div
-          class="vue-video-player-controller-progress-bar-container"
-        >
-          <!-- Running progress bar -->
-          <span
-            :style="{
-              width: `${runningBarPercentage}%`
-            }"
-            class="vue-video-player-controller-progress-bar-running"
-          />
-        </div>
-        <div
-          class="vue-video-player-controller-menu"
+          class="vue-video-player-middle-button-container"
+          @click.stop="playOrPause"
         >
           <div
-            class="vue-video-player-controller-button"
+            class="vue-video-player-middle-button"
           >
-            <button
-              v-if="videoStatus === 'play'"
-              @click="playOrPause"
-            >
-              <m-pause-icon />
-            </button>
-            <button
-              v-else
-              @click="playOrPause"
-            >
-              <m-play-icon />
-            </button>
+            <m-play-icon
+              v-if="videoStatus === 'stop' || videoStatus === 'pause'"
+              :size="300"
+            />
           </div>
-          <volume-controller
-            :volume="videoVolume"
-            @update:volume="onUpdateVolume"
-          />
-          <!-- Timer -->
-          <div>
-            {{ formattedCurrentTime }} / {{ formattedDuration }}
+        </div>
+        <div
+          class="vue-video-player-controller"
+        >
+          <div
+            class="vue-video-player-controller-progress-bar-container"
+          >
+            <!-- Running progress bar -->
+            <span
+              :style="{
+                width: `${runningBarPercentage}%`
+              }"
+              class="vue-video-player-controller-progress-bar-running"
+            />
+          </div>
+          <div
+            class="vue-video-player-controller-menu"
+          >
+            <div
+              class="vue-video-player-controller-button"
+            >
+              <button
+                v-if="videoStatus === 'play'"
+                @click="playOrPause"
+              >
+                <m-pause-icon />
+              </button>
+              <button
+                v-else
+                @click="playOrPause"
+              >
+                <m-play-icon />
+              </button>
+            </div>
+            <volume-controller
+              :volume="videoVolume"
+              @update:volume="onUpdateVolume"
+            />
+            <!-- Timer -->
+            <div
+              class="vue-video-player-timer"
+            >
+              {{ formattedCurrentTime }} / {{ formattedDuration }}
+            </div>
+            <!-- Spacer -->
+            <div
+              style="margin: 0 auto;"
+            />
+            <div
+              style="display: flex"
+            >
+              <div>
+                <button
+                  @click="toggleIsFullScreen"
+                >
+                  <m-fullscreen-exit-icon
+                    v-if="isFullScreen"
+                  />
+                  <m-fullscreen-icon
+                    v-else
+                  />
+                </button>
+              </div>
+
+              <slot
+                name="endController"
+              >
+                <drop-menu>
+                  <template
+                    #activator
+                  >
+                    <button>
+                      <m-settings-icon />
+                    </button>
+                  </template>
+                  <div>
+                    test
+                  </div>
+                </drop-menu>
+              </slot>
+            </div>
           </div>
         </div>
       </div>
@@ -84,14 +136,28 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { VueVideoPlayerVideoStatus } from './types'
 import VolumeController from './components/VolumeController.vue'
+import DropMenu from './components/Dropmenu.vue'
 import MPlayIcon from 'vue-material-design-icons/Play.vue'
 import MPauseIcon from 'vue-material-design-icons/Pause.vue'
+import MSettingsIcon from 'vue-material-design-icons/AccountSettings.vue'
+import MFullscreenIcon from 'vue-material-design-icons/Fullscreen.vue'
+import MFullscreenExitIcon from 'vue-material-design-icons/FullscreenExit.vue'
 
 const props = defineProps({
   src: {
     type: String,
     required: false,
     default: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+  },
+  height: {
+    type: String,
+    required: false,
+    default: '400px'
+  },
+  width: {
+    type: String,
+    required: false,
+    default: '1000px'
   }
 })
 
@@ -103,6 +169,7 @@ const duration = ref(0)
 const currentTime = ref(0)
 const timer = ref<NodeJS.Timer | null>(null)
 const videoVolume = ref(0)
+const isFullScreen = ref(true)
 /* Error message */
 const errorMsg = ref('')
 
@@ -197,6 +264,10 @@ const onClickPauseBtn = () => {
   }
 }
 
+const toggleIsFullScreen = () => {
+  isFullScreen.value = !isFullScreen.value
+}
+
 const onUpdateVolume = (newVolume: number) => {
   if (videoRef.value) {
     videoRef.value.volume = newVolume
@@ -239,9 +310,4 @@ defineExpose({
   lang="scss"
 >
 @import "./styles";
-
-#app {
-  height: 90vh;
-  width: 90vw;
-}
 </style>

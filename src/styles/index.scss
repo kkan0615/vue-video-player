@@ -1,18 +1,11 @@
 @import "./variables";
+@import "./dropmenu";
 
 .vue-video-player-root-container {
   background: $vue-video-player-background;
   color: $vue-video-player-primary-color;
-  height: 100%;
-  width: 100%;
+  background-color: red;
 
-  /**
-    Full size of screen
-   */
-  &--full {
-    height: 100vh;
-    width: 100vw;
-  }
 
   button, input[type="submit"], input[type="reset"] {
     background: none;
@@ -25,6 +18,13 @@
   }
 }
 
+.vue-video-player-controller-container {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+}
+
 .vue-video-player-video-container {
   position: relative;
   height: 100%;
@@ -32,15 +32,31 @@
 }
 
 .vue-video-player-video {
-  height: 100%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  background-size: cover;
+  overflow: hidden;
+}
+
+.vue-video-player-middle-button-container {
+  cursor: pointer;
   width: 100%;
+  height: 100%;
 }
 
 .vue-video-player-middle-button {
   position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   z-index: 1;
-  left: 50%;
-  top: 50%;
 }
 
 .vue-video-player-controller {
@@ -81,14 +97,21 @@
 }
 
 .vue-video-player-controller-volume-controller {
-  min-width: 52px;
   display: flex;
+  margin-right: 12px;
+
   button {
     padding-top: 1px;
   }
 
   &--slider-container {
-    flex-grow: 1;
+    width: 52px;
+    display: none;
+    margin-left: 5px;
+  }
+
+  &:hover &--slider-container {
+    display: block;
   }
 
   body {
@@ -97,22 +120,20 @@
     display: flex;
   }
 
-  // @TODO: Watch following link https://codepen.io/nourabusoud/pen/YeMOVv
-
   input[type="range"] {
-    -webkit-appearance: none;
+    margin-top: 10px;
+    border: solid 1px $vue-video-player-primary-color;
+    border-radius: 8px;
+    height: 3px;
     width: 100%;
+    outline: none;
     cursor: pointer;
-    border-radius: 0; /* iOS */
-    background: linear-gradient(to right, #50299c, #7a00ff 0%, #d3edff 100%, #dee1e2 100%);
+    transition: background 450ms ease-in;
+    -webkit-appearance: none;
   }
 
-
   input[type="range"]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    background: $vue-video-player-progress-bar-background;
+    margin-top: 5px;
   }
 
   /*
@@ -123,8 +144,6 @@
     width: 15px; /* 1 */
     height: 15px;
     background: $vue-video-player-primary-color;
-    //box-shadow: -100vw 0 0 100vw $vue-video-player-primary-color;
-    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
     border: 1px solid #000000;
     margin-top: -5px;
     border-radius: 100%;
@@ -175,4 +194,9 @@
   input[type="range"]::-ms-tooltip {
     display: none;
   }
+}
+
+.vue-video-player-timer {
+  color: $vue-video-player-second-color;
+  margin-bottom: 1px;
 }

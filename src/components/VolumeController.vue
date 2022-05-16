@@ -19,6 +19,9 @@
       class="vue-video-player-controller-volume-controller--slider-container"
     >
       <input
+        :style="{
+          background: backgroundRangeInput,
+        }"
         min="0"
         max="100"
         :value="formattedVolume"
@@ -48,10 +51,16 @@ const emits = defineEmits<{
   (e: 'update:volume', newVolume: number): void
 }>()
 
-const rangeInputRef = ref<HTMLInputElement>()
 const lastVolume = ref(0)
 
 const formattedVolume = computed(() => props.volume ? props.volume * 100 : 0)
+const backgroundRangeInput = computed(() => {
+  const primaryColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--vue-video-player-primary-color')
+  const progressBarColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--vue-video-player-progress-bar-background')
+  return `linear-gradient(to right, ${primaryColor} 0%, ${primaryColor} ${formattedVolume.value}%, ${progressBarColor} ${formattedVolume.value}%, ${progressBarColor} 100%)`
+})
 
 const silentOrBack = () => {
   if (!props.volume) {

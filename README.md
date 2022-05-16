@@ -33,4 +33,11 @@ app
 | disable | boolean | false   | Disable to press any buttons |
 |         |         |         |                              |
 
+## Slot
+| Name         | Description                  |
+|--------------|------------------------------|
+| appendInner  | Video Src                    |
+| disable      | Disable to press any buttons |
+|              |                              |
+
 ## Support me
