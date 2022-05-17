@@ -13,6 +13,7 @@
     >
       <video
         ref="videoRef"
+        preload="metadata"
         class="vue-video-player-video"
         @play="onPlay"
         @pause="onPause"
@@ -23,6 +24,13 @@
           :src="videoSrc"
           type="video/webm"
         >
+        <!--        <track-->
+        <!--          label="test"-->
+        <!--          kind="subtitles"-->
+        <!--          srclang="en"-->
+        <!--          src="./assets/sample.vtt"-->
+        <!--          default-->
+        <!--        >-->
       </video>
       <div
         class="vue-video-player-controller-container"
@@ -157,7 +165,7 @@ const props = defineProps({
     type: String,
     required: false,
     default: '1000px'
-  }
+  },
 })
 
 /* Ref for video html element */

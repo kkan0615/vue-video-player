@@ -12,6 +12,7 @@
     <div
       v-if="isOpen"
       class="vue-video-player-drop-menu-content"
+      @click="toggleIsOpen"
     >
       <slot />
     </div>
@@ -19,19 +20,19 @@
 </template>
 <script lang="ts">
 export default {
-  name: 'VueVideoPlayerDropmenu',
+  name: 'VueVideoPlayerDropMenu',
 }
 </script>
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: false,
-    default: false,
-  }
-})
+// const props = defineProps({
+//   modelValue: {
+//     type: Boolean,
+//     required: false,
+//     default: false,
+//   }
+// })
 
 const isOpen = ref(false)
 
