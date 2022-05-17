@@ -5,6 +5,9 @@
       height: isFullScreen ? '100vh' : height,
       width: isFullScreen ? '100vw' : width,
     }"
+    @mouseover="displayMenu"
+    @mousemove="displayMenu"
+    @mouseleave="onMouseLeaveContainer"
   >
     <!-- If video is exist -->
     <div
@@ -49,6 +52,7 @@
           </div>
         </div>
         <div
+          v-show="(videoStatus === 'stop' || videoStatus === 'pause') || isDisplayMenu === true"
           class="vue-video-player-controller"
         >
           <div
@@ -166,6 +170,11 @@ const props = defineProps({
     required: false,
     default: '1000px'
   },
+  initVolume: {
+    type: Number,
+    required: false,
+    default: 100,
+  }
 })
 
 /* Ref for video html element */
@@ -177,6 +186,8 @@ const currentTime = ref(0)
 const timer = ref<NodeJS.Timer | null>(null)
 const videoVolume = ref(0)
 const isFullScreen = ref(false)
+const isDisplayMenu = ref(true)
+const menuTimer = ref<NodeJS.Timeout | null>(null)
 /* Error message */
 const errorMsg = ref('')
 
@@ -227,7 +238,7 @@ onBeforeUnmount(() => {
 const onCanplay = () => {
   /* Set the duration */
   duration.value = videoRef.value?.duration || 0
-  videoVolume.value = videoRef.value?.volume || 0
+  videoVolume.value = props.initVolume / 100
 }
 
 const onPlay = () => {
@@ -274,7 +285,6 @@ const onClickPauseBtn = () => {
 
 const moveForward = () => {
   if (videoRef.value) {
-    console.log('run?')
     if (videoRef.value.currentTime + 5 > videoRef.value.duration) {
       videoRef.value.currentTime = videoRef.value.duration
       currentTime.value = videoRef.value.duration
@@ -282,6 +292,7 @@ const moveForward = () => {
       videoRef.value.currentTime += 5
       currentTime.value += 5
     }
+    initMenuTimer()
   }
 }
 
@@ -294,25 +305,37 @@ const moveBackward = () => {
       videoRef.value.currentTime -= 5
       currentTime.value -= 5
     }
+    initMenuTimer()
   }
 }
 
 const volumeUp = () => {
   const newVolume = parseFloat((videoVolume.value + 0.05).toFixed(2))
-  if (newVolume <= 1)
+  if (newVolume <= 1) {
     onUpdateVolume(newVolume)
-  else if (newVolume >= 1) {
+    initMenuTimer()
+  } else if (newVolume >= 1) {
     onUpdateVolume(1)
+    initMenuTimer()
   }
 }
 
 const volumeDown = () => {
   const newVolume = parseFloat((videoVolume.value - 0.05).toFixed(2))
-  if (newVolume >= 0)
+  if (newVolume >= 0) {
     onUpdateVolume(newVolume)
-  else if (newVolume < 0) {
+    initMenuTimer()
+  } else if (newVolume < 0) {
     onUpdateVolume(videoVolume.value - 0)
   }
+}
+
+const displayMenu = () => {
+  isDisplayMenu.value = true
+}
+
+const onMouseLeaveContainer = () => {
+  isDisplayMenu.value = false
 }
 
 const toggleIsFullScreen = () => {
@@ -332,7 +355,6 @@ const toggleIsFullScreen = () => {
 }
 
 const onUpdateVolume = (newVolume: number) => {
-  console.log('new', newVolume)
   if (videoRef.value) {
     videoRef.value.volume = newVolume
     videoVolume.value = newVolume
@@ -382,6 +404,22 @@ const destroyTimer = () => {
   if (timer.value) {
     clearInterval(timer.value)
     timer.value = null
+  }
+}
+
+const initMenuTimer = () => {
+  destroyMenuTimer()
+  isDisplayMenu.value = true
+  menuTimer.value = setTimeout(() => {
+    isDisplayMenu.value = false
+    destroyMenuTimer()
+  }, 3000)
+}
+
+const destroyMenuTimer = () => {
+  if (menuTimer.value) {
+    clearTimeout(menuTimer.value)
+    menuTimer.value = null
   }
 }
 

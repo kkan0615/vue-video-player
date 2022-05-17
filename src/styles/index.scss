@@ -19,9 +19,9 @@
     cursor: pointer;
   }
 
-  &:hover .vue-video-player-controller {
-    display: flex;
-  }
+  //&:hover .vue-video-player-controller {
+  //  display: flex;
+  //}
 }
 
 .vue-video-player-controller-container {
@@ -77,7 +77,8 @@
 
 .vue-video-player-controller {
   position: absolute;
-  display: none;
+  //display: none;
+  display: flex;
   flex-direction: column;
   z-index: 1;
   width: 100%;
