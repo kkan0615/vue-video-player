@@ -272,6 +272,49 @@ const onClickPauseBtn = () => {
   }
 }
 
+const moveForward = () => {
+  if (videoRef.value) {
+    console.log('run?')
+    if (videoRef.value.currentTime + 5 > videoRef.value.duration) {
+      videoRef.value.currentTime = videoRef.value.duration
+      currentTime.value = videoRef.value.duration
+    } else {
+      videoRef.value.currentTime += 5
+      currentTime.value += 5
+    }
+  }
+}
+
+const moveBackward = () => {
+  if (videoRef.value) {
+    if (videoRef.value.currentTime - 5 <= 0) {
+      videoRef.value.currentTime = 0
+      currentTime.value = 0
+    } else {
+      videoRef.value.currentTime -= 5
+      currentTime.value -= 5
+    }
+  }
+}
+
+const volumeUp = () => {
+  const newVolume = parseFloat((videoVolume.value + 0.05).toFixed(2))
+  if (newVolume <= 1)
+    onUpdateVolume(newVolume)
+  else if (newVolume >= 1) {
+    onUpdateVolume(1)
+  }
+}
+
+const volumeDown = () => {
+  const newVolume = parseFloat((videoVolume.value - 0.05).toFixed(2))
+  if (newVolume >= 0)
+    onUpdateVolume(newVolume)
+  else if (newVolume < 0) {
+    onUpdateVolume(videoVolume.value - 0)
+  }
+}
+
 const toggleIsFullScreen = () => {
   // @TODO: If there is no bug when publish, remove following comments
   // isFullScreen.value = !isFullScreen.value
@@ -289,6 +332,7 @@ const toggleIsFullScreen = () => {
 }
 
 const onUpdateVolume = (newVolume: number) => {
+  console.log('new', newVolume)
   if (videoRef.value) {
     videoRef.value.volume = newVolume
     videoVolume.value = newVolume
@@ -299,6 +343,18 @@ const onKeydown = (event: KeyboardEvent) => {
   switch (event.code) {
     case 'Space':
       playOrPause()
+      break
+    case 'ArrowRight':
+      moveForward()
+      break
+    case 'ArrowLeft':
+      moveBackward()
+      break
+    case 'ArrowUp':
+      volumeUp()
+      break
+    case 'ArrowDown':
+      volumeDown()
       break
   }
 }
@@ -316,6 +372,9 @@ const onFullscreenChange = (event: any) => {
 const initTimer = () => {
   timer.value = setInterval(() => {
     currentTime.value = videoRef.value?.currentTime || 0
+    if (videoRef.value && videoRef.value.currentTime > videoRef.value.duration) {
+      destroyTimer()
+    }
   }, 100)
 }
 

@@ -18,6 +18,10 @@
   .cursor-pointer {
     cursor: pointer;
   }
+
+  &:hover .vue-video-player-controller {
+    display: flex;
+  }
 }
 
 .vue-video-player-controller-container {
@@ -61,9 +65,19 @@
   z-index: 1;
 }
 
+//&--slider-container {
+//  width: 52px;
+//  display: none;
+//  margin-left: 5px;
+//}
+//
+//&:hover &--slider-container {
+//  display: block;
+//}
+
 .vue-video-player-controller {
   position: absolute;
-  display: flex;
+  display: none;
   flex-direction: column;
   z-index: 1;
   width: 100%;
