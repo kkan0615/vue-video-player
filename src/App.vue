@@ -40,7 +40,7 @@
       >
         <div
           class="vue-video-player-middle-button-container"
-          @click.stop="playOrPause"
+          @click="playOrPause"
         >
           <div
             class="vue-video-player-middle-button"
@@ -59,7 +59,7 @@
           <progress-bar
             :current-time="currentTime"
             :duration="duration"
-            @update:currentTime="onUpdateCurrentTime"
+            @update:current-time="onUpdateCurrentTime"
           />
           <div
             class="vue-video-player-controller-menu"
@@ -120,9 +120,7 @@
                       <m-settings-icon />
                     </button>
                   </template>
-                  <div>
-                    test
-                  </div>
+                  <vue-video-player-progress-bar-setting-content />
                 </drop-menu>
               </slot>
             </div>
@@ -149,6 +147,7 @@ import MPauseIcon from 'vue-material-design-icons/Pause.vue'
 import MSettingsIcon from 'vue-material-design-icons/AccountSettings.vue'
 import MFullscreenIcon from 'vue-material-design-icons/Fullscreen.vue'
 import MFullscreenExitIcon from 'vue-material-design-icons/FullscreenExit.vue'
+import VueVideoPlayerProgressBarSettingContent from '@/components/SettingContent.vue'
 
 const props = defineProps({
   src: {

@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="containerRef"
     class="vue-video-player-drop-menu-container"
   >
     <div
@@ -12,7 +13,6 @@
     <div
       v-if="isOpen"
       class="vue-video-player-drop-menu-content"
-      @click="toggleIsOpen"
     >
       <slot />
     </div>
@@ -24,7 +24,9 @@ export default {
 }
 </script>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+
+const containerRef = ref<HTMLDivElement>()
 
 // const props = defineProps({
 //   modelValue: {
@@ -34,9 +36,19 @@ import { ref } from 'vue'
 //   }
 // })
 
+onBeforeMount(() => {
+  window.addEventListener('click', clickInEl)
+})
+
 const isOpen = ref(false)
 
 const toggleIsOpen = () => {
   isOpen.value = !isOpen.value
+}
+
+const clickInEl = (e: any) => {
+  if (containerRef.value && !containerRef.value.contains(e.target)) {
+    isOpen.value = false
+  }
 }
 </script>
