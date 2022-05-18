@@ -120,7 +120,9 @@
                       <m-settings-icon />
                     </button>
                   </template>
-                  <vue-video-player-progress-bar-setting-content />
+                  <vue-video-player-progress-bar-setting-content
+                    @update:playback-rate="onUpdatePlaybackRate"
+                  />
                 </drop-menu>
               </slot>
             </div>
@@ -391,6 +393,13 @@ const onUpdateCurrentTime = (newCurrentTime: number) => {
   }
 }
 
+const onUpdatePlaybackRate = (newPlaybackRate: number) => {
+  if (videoRef.value) {
+    console.log('test')
+    videoRef.value.playbackRate = newPlaybackRate
+  }
+}
+
 const initTimer = () => {
   timer.value = setInterval(() => {
     currentTime.value = videoRef.value?.currentTime || 0
@@ -424,7 +433,6 @@ const destroyMenuTimer = () => {
 }
 
 initTimer()
-
 
 /**
  * Expose
