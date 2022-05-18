@@ -55,17 +55,12 @@
           v-show="(videoStatus === 'stop' || videoStatus === 'pause') || isDisplayMenu === true"
           class="vue-video-player-controller"
         >
-          <div
-            class="vue-video-player-controller-progress-bar-container"
-          >
-            <!-- Running progress bar -->
-            <span
-              :style="{
-                width: `${runningBarPercentage}%`
-              }"
-              class="vue-video-player-controller-progress-bar-running"
-            />
-          </div>
+          <!-- Progress bar -->
+          <progress-bar
+            :current-time="currentTime"
+            :duration="duration"
+            @update:currentTime="onUpdateCurrentTime"
+          />
           <div
             class="vue-video-player-controller-menu"
           >
@@ -148,6 +143,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { VueVideoPlayerVideoStatus } from './types'
 import VolumeController from './components/VolumeController.vue'
 import DropMenu from './components/Dropmenu.vue'
+import ProgressBar from './components/ProgressBar.vue'
 import MPlayIcon from 'vue-material-design-icons/Play.vue'
 import MPauseIcon from 'vue-material-design-icons/Pause.vue'
 import MSettingsIcon from 'vue-material-design-icons/AccountSettings.vue'
@@ -173,7 +169,7 @@ const props = defineProps({
   initVolume: {
     type: Number,
     required: false,
-    default: 100,
+    default: 10,
   }
 })
 
@@ -196,10 +192,6 @@ const errorMsg = ref('')
  */
 const videoSrc = computed(() => {
   return props.src
-})
-
-const runningBarPercentage = computed(() => {
-  return (currentTime.value / duration.value) * 100
 })
 
 const formattedDuration = computed(() => {
@@ -237,7 +229,10 @@ onBeforeUnmount(() => {
  */
 const onCanplay = () => {
   /* Set the duration */
-  duration.value = videoRef.value?.duration || 0
+  if (videoRef.value) {
+    duration.value = videoRef.value?.duration || 0
+    videoRef.value.volume = videoVolume.value
+  }
   videoVolume.value = props.initVolume / 100
 }
 
@@ -381,13 +376,19 @@ const onKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const onFullscreenChange = (event: any) => {
+const onFullscreenChange = () => {
   const fs = document as any
-  // console.log('test')
   if (!fs.webkitIsFullScreen && !fs.mozFullScreen && !fs.msFullscreenElement) {
     isFullScreen.value = false
   } else {
     isFullScreen.value = true
+  }
+}
+
+const onUpdateCurrentTime = (newCurrentTime: number) => {
+  if (videoRef.value) {
+    currentTime.value = newCurrentTime
+    videoRef.value.currentTime = newCurrentTime
   }
 }
 
