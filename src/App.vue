@@ -11,7 +11,7 @@
   >
     <!-- If video is exist -->
     <div
-      v-show="!!videoSrc"
+      v-show="!!videoList.length"
       class="vue-video-player-video-container"
     >
       <video
@@ -24,16 +24,21 @@
         @canplay="onCanplay"
       >
         <source
-          :src="videoSrc"
-          type="video/webm"
+          v-for="(video, index) in videoList"
+          :key="`video-${index}`"
+          :src="video.src"
+          :type="video.type"
         >
-        <!--        <track-->
-        <!--          label="test"-->
-        <!--          kind="subtitles"-->
-        <!--          srclang="en"-->
-        <!--          src="./assets/sample.vtt"-->
-        <!--          default-->
-        <!--        >-->
+        <!-- Subtitle list -->
+        <track
+          v-for="(subtitle, index) in subtitleList"
+          :key="`subtitle-${index}`"
+          :label="subtitle.label"
+          :kind="subtitle.kind"
+          :srclang="subtitle.srclang"
+          :src="subtitle.src"
+          default
+        >
       </video>
       <div
         class="vue-video-player-controller-container"
@@ -141,7 +146,12 @@
 </template>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
-import { VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerVideoStatus } from './types'
+import {
+  VueVideoPlayerDefaultPlaybackRateList,
+  VueVideoPlayerSubtitle,
+  VueVideoPlayerVideo,
+  VueVideoPlayerVideoStatus
+} from './types'
 import VolumeController from './components/VolumeController.vue'
 import DropMenu from './components/Dropmenu.vue'
 import ProgressBar from './components/ProgressBar.vue'
@@ -153,10 +163,14 @@ import MFullscreenIcon from 'vue-material-design-icons/Fullscreen.vue'
 import MFullscreenExitIcon from 'vue-material-design-icons/FullscreenExit.vue'
 
 const props = defineProps({
-  src: {
-    type: String,
-    required: false,
-    default: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+  videoList: {
+    type: Array as PropType<VueVideoPlayerVideo[]>,
+    required: true,
+    default: () => [{
+      // Remove it when publish
+      src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      type: 'video/webm',
+    }]
   },
   height: {
     type: String,
@@ -172,6 +186,11 @@ const props = defineProps({
     type: Number,
     required: false,
     default: 10,
+  },
+  subtitleList: {
+    type: Array as PropType<VueVideoPlayerSubtitle[]>,
+    required: false,
+    default: () => []
   },
   playbackRateList: {
     type: Array as PropType<number[]>,
@@ -194,13 +213,6 @@ const menuTimer = ref<NodeJS.Timeout | null>(null)
 /* Error message */
 const errorMsg = ref('')
 
-/**
- * Real Src
- */
-const videoSrc = computed(() => {
-  return props.src
-})
-
 const formattedDuration = computed(() => {
   const fixedSeconds = parseFloat(duration.value.toFixed(2))
   const minutes = parseInt((fixedSeconds / 60).toString())
@@ -216,7 +228,7 @@ const formattedCurrentTime = computed(() => {
 })
 
 onMounted(() => {
-  if (!props.src) {
+  if (!props.videoList || !props.videoList) {
     errorMsg.value = 'no video'
   }
 
