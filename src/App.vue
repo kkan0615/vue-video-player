@@ -120,7 +120,8 @@
                       <m-settings-icon />
                     </button>
                   </template>
-                  <vue-video-player-progress-bar-setting-content
+                  <progress-bar-setting-content
+                    :playback-rate-list="playbackRateList"
                     @update:playback-rate="onUpdatePlaybackRate"
                   />
                 </drop-menu>
@@ -139,17 +140,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { VueVideoPlayerVideoStatus } from './types'
+import { computed, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
+import { VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerVideoStatus } from './types'
 import VolumeController from './components/VolumeController.vue'
 import DropMenu from './components/Dropmenu.vue'
 import ProgressBar from './components/ProgressBar.vue'
+import ProgressBarSettingContent from '@/components/SettingContent.vue'
 import MPlayIcon from 'vue-material-design-icons/Play.vue'
 import MPauseIcon from 'vue-material-design-icons/Pause.vue'
 import MSettingsIcon from 'vue-material-design-icons/AccountSettings.vue'
 import MFullscreenIcon from 'vue-material-design-icons/Fullscreen.vue'
 import MFullscreenExitIcon from 'vue-material-design-icons/FullscreenExit.vue'
-import VueVideoPlayerProgressBarSettingContent from '@/components/SettingContent.vue'
 
 const props = defineProps({
   src: {
@@ -171,6 +172,11 @@ const props = defineProps({
     type: Number,
     required: false,
     default: 10,
+  },
+  playbackRateList: {
+    type: Array as PropType<number[]>,
+    required: false,
+    default: () => VueVideoPlayerDefaultPlaybackRateList,
   }
 })
 

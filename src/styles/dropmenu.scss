@@ -10,7 +10,32 @@
   z-index: 10;
   background-color: black;
   color: white;
-  min-width: 100px;
+  min-width: 150px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  padding: 15px;
+
+  &-title-container {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+
+    &--icon {
+      margin-top: 5px;
+      cursor: pointer;
+    }
+
+    &--title {
+      margin-left: 10px;
+    }
+  }
+
+  &-list {
+    &--item {
+     cursor: pointer;
+     padding: 8px 15px;
+
+      &:hover {
+        background-color: gray;
+      }
+    }
+  }
 }
