@@ -1,10 +1,12 @@
 $vue-video-player-background: rgb(0 0 0);
 $vue-video-player-primary-color: rgb(255 255 255);
 $vue-video-player-second-color: #DDDDDD;
-$vue-video-player-progress-bar-background: rgb(107 114 128);;
+$vue-video-player-progress-bar-background: rgb(107 114 128);
+$vue-video-player-drop-menu-content-list-item-hover-color: rgb(107 114 128);
 
 :root {
   --vue-video-player-background: #{$vue-video-player-background};
   --vue-video-player-primary-color: #{$vue-video-player-primary-color};
   --vue-video-player-progress-bar-background: #{$vue-video-player-progress-bar-background};
+  --vue-video-player-drop-menu-content-list-item-hover-color: #{$vue-video-player-drop-menu-content-list-item-hover-color};
 }

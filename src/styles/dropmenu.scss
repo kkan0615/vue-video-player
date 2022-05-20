@@ -1,3 +1,5 @@
+@import "./variables";
+
 .vue-video-player-drop-menu-container {
   position: relative;
 }
@@ -34,7 +36,7 @@
      padding: 8px 15px;
 
       &:hover {
-        background-color: gray;
+        background-color: $vue-video-player-drop-menu-content-list-item-hover-color;
       }
     }
   }
