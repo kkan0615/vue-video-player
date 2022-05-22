@@ -2,6 +2,7 @@
   <div
     style="height: 100%;"
   >
+    <!-- Main menu -->
     <div
       v-show="currentMenuIndex === 0"
     >
@@ -13,6 +14,12 @@
           @click="changeCurrentMenuIndex(1)"
         >
           Speed
+        </li>
+        <li
+          class="vue-video-player-drop-menu-content-list--item"
+          @click="changeCurrentMenuIndex(2)"
+        >
+          Subtitle
         </li>
       </ul>
     </div>
@@ -47,6 +54,37 @@
         </li>
       </ul>
     </div>
+    <div
+      v-show="currentMenuIndex === 2"
+      style="height: 100%;"
+    >
+      <div
+        class="vue-video-player-drop-menu-content-title-container"
+      >
+        <m-arrow-left-icon
+          class="vue-video-player-drop-menu-content-title-container--icon"
+          @click="changeCurrentMenuIndex(0)"
+        />
+        <div
+          class="vue-video-player-drop-menu-content-title-container--title"
+        >
+          Subtitle
+        </div>
+      </div>
+      <hr>
+      <ul
+        class="vue-video-player-drop-menu-content-list"
+      >
+        <li
+          v-for="(subtitle, index) in subtitleList"
+          :key="`subtitle-${index}`"
+          class="vue-video-player-drop-menu-content-list--item"
+          @click="changeSubtitle(subtitle)"
+        >
+          {{ subtitle.label }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -56,7 +94,7 @@ export default {
 </script>
 <script setup lang="ts">
 import { PropType, ref } from 'vue'
-import { VueVideoPlayerDefaultPlaybackRateList } from '@/types'
+import { VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerSubtitle } from '@/types'
 import MArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
 
 const props = defineProps({
@@ -64,11 +102,17 @@ const props = defineProps({
     type: Array as PropType<number[]>,
     required: true,
     default: () => VueVideoPlayerDefaultPlaybackRateList,
-  }
+  },
+  subtitleList: {
+    type: Array as PropType<VueVideoPlayerSubtitle[]>,
+    required: false,
+    default: () => [] as VueVideoPlayerSubtitle[]
+  },
 })
 
 const emits = defineEmits<{
   (e: 'update:playbackRate', newPlaybackRate: number): void
+  (e: 'update:subtitle', subtitle: VueVideoPlayerSubtitle): void
 }>()
 
 const currentMenuIndex = ref(0)
@@ -79,5 +123,9 @@ const changeCurrentMenuIndex = (index: number) => {
 
 const changePlaybackRate = (newPlaybackRate: number) => {
   emits('update:playbackRate', newPlaybackRate)
+}
+
+const changeSubtitle = (subtitle: VueVideoPlayerSubtitle) => {
+  emits('update:subtitle', subtitle)
 }
 </script>

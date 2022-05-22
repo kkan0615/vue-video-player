@@ -14,29 +14,35 @@
       v-show="!!videoList.length"
       class="vue-video-player-video-container"
     >
+      <!--      class="vue-video-player-video"-->
+
       <video
         ref="videoRef"
+        crossorigin="Access-Control-Allow-Origin: *"
         preload="metadata"
         class="vue-video-player-video"
+        :style="{
+          'object-fit': videoObjectFit,
+        }"
         @play="onPlay"
         @pause="onPause"
         @ended="onEnded"
         @canplay="onCanplay"
       >
+        <!-- Video -->
         <source
           v-for="(video, index) in videoList"
           :key="`video-${index}`"
           :src="video.src"
           :type="video.type"
         >
-        <!-- Subtitle list -->
+        <!-- Subtitle -->
         <track
-          v-for="(subtitle, index) in subtitleList"
-          :key="`subtitle-${index}`"
-          :label="subtitle.label"
-          :kind="subtitle.kind"
-          :srclang="subtitle.srclang"
-          :src="subtitle.src"
+          v-if="currentSubtitle"
+          :label="currentSubtitle.label"
+          :kind="currentSubtitle.kind"
+          :srclang="currentSubtitle.srclang"
+          :src="currentSubtitle.src"
           default
         >
       </video>
@@ -127,7 +133,9 @@
                   </template>
                   <progress-bar-setting-content
                     :playback-rate-list="playbackRateList"
+                    :subtitle-list="subtitleList"
                     @update:playback-rate="onUpdatePlaybackRate"
+                    @update:subtitle="onUpdateSubtitle"
                   />
                 </drop-menu>
               </slot>
@@ -167,30 +175,58 @@ const props = defineProps({
     type: Array as PropType<VueVideoPlayerVideo[]>,
     required: true,
     default: () => [{
-      // Remove it when publish
+      // @TODO: Remove it when publish
       src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      // src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
       type: 'video/webm',
     }]
   },
   height: {
     type: String,
     required: false,
-    default: '400px'
+    default: '600px'
   },
   width: {
     type: String,
     required: false,
-    default: '1000px'
+    default: '1024px'
   },
   initVolume: {
     type: Number,
     required: false,
     default: 10,
   },
+  videoObjectFit: {
+    type: String as PropType<'cover' | 'fill' | 'contain' | 'none'>,
+    required: false,
+    default: 'fill',
+  },
   subtitleList: {
     type: Array as PropType<VueVideoPlayerSubtitle[]>,
     required: false,
-    default: () => []
+    default: () => [
+      // @TODO: Remove it when publish
+      // {
+      //   label: 'pt',
+      //   kind: 'subtitles',
+      //   srclang: 'pt',
+      //   src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2-subtitles-pt-BR.vtt'
+      // },
+      {
+        label: 'pt',
+        kind: 'subtitles',
+        srclang: 'pt',
+        src: new URL('./assets/sample.vtt', import.meta.url) as any,
+        default: true,
+      },
+      {
+        label: 'en',
+        kind: 'subtitles',
+        srclang: 'en',
+        src: new URL('./assets/sample2.vtt', import.meta.url) as any,
+        default: false,
+      }
+    ] as VueVideoPlayerSubtitle[]
   },
   playbackRateList: {
     type: Array as PropType<number[]>,
@@ -210,6 +246,8 @@ const videoVolume = ref(0)
 const isFullScreen = ref(false)
 const isDisplayMenu = ref(true)
 const menuTimer = ref<NodeJS.Timeout | null>(null)
+/* Current selected subtitle */
+const currentSubtitleIndex = ref(0)
 /* Error message */
 const errorMsg = ref('')
 
@@ -227,11 +265,18 @@ const formattedCurrentTime = computed(() => {
   return `${minutes}:${seconds}`
 })
 
+const currentSubtitle = computed(() => {
+  return props.subtitleList && props.subtitleList.length > 0
+    ? props.subtitleList[currentSubtitleIndex.value]
+    : null
+})
+
 onMounted(() => {
   if (!props.videoList || !props.videoList) {
     errorMsg.value = 'no video'
   }
 
+  initDefaultSubtitle()
   window.addEventListener('keydown', onKeydown)
   document.addEventListener('fullscreenchange', onFullscreenChange)
 })
@@ -413,8 +458,23 @@ const onUpdateCurrentTime = (newCurrentTime: number) => {
 
 const onUpdatePlaybackRate = (newPlaybackRate: number) => {
   if (videoRef.value) {
-    console.log('test')
     videoRef.value.playbackRate = newPlaybackRate
+  }
+}
+
+const onUpdateSubtitle = (newSubtitle: VueVideoPlayerSubtitle) => {
+  if (props.subtitleList) {
+    const findIndex = props.subtitleList.findIndex(subtitle => subtitle.label === newSubtitle.label)
+    if (findIndex >= 0) {
+      currentSubtitleIndex.value = findIndex
+    }
+  }
+}
+
+const initDefaultSubtitle = () => {
+  if (props.subtitleList) {
+    const findIndex = props.subtitleList.findIndex(subtitle => subtitle.default)
+    currentSubtitleIndex.value = findIndex >= 0 ? findIndex : 0
   }
 }
 
