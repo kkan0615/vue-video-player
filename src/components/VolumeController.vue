@@ -8,10 +8,10 @@
       <m-volume-off
         v-if="volume === 0"
       />
-      <m-volume-low
+      <m-volume-down
         v-else-if="volume > 0 && volume < 0.5"
       />
-      <m-volume-high
+      <m-volume-up
         v-else-if="volume >= 0.5"
       />
     </button>
@@ -38,9 +38,9 @@ export default {
 }
 </script>
 <script setup lang="ts">
-import MVolumeOff from 'vue-material-design-icons/VolumeOff.vue'
-import MVolumeLow from 'vue-material-design-icons/VolumeLow.vue'
-import MVolumeHigh from 'vue-material-design-icons/VolumeHigh.vue'
+import MVolumeOff from '../components/icons/MVolumeOffIcon.vue'
+import MVolumeDown from '../components/icons/MVolumeDown.vue'
+import MVolumeUp from '../components/icons/MVolumeUp.vue'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{

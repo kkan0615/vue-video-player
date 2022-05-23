@@ -87,7 +87,7 @@
           <progress-bar
             :current-time="currentTime"
             :duration="duration"
-            @update:current-time="onUpdateCurrentTime"
+            @update:current-time="updateCurrentTime"
           />
           <div
             class="vue-video-player-controller-menu"
@@ -110,7 +110,7 @@
             </div>
             <volume-controller
               :volume="videoVolume"
-              @update:volume="onUpdateVolume"
+              @update:volume="updateVolume"
             />
             <!-- Timer -->
             <div
@@ -130,6 +130,7 @@
               />
               <div
                 class="cursor-pointer"
+                style="margin-right: 4px;"
                 @click="toggleIsFullScreen"
               >
                 <m-fullscreen-exit-icon
@@ -139,27 +140,36 @@
                   v-else
                 />
               </div>
-              <!--              <div-->
-              <!--                class="cursor-pointer"-->
-              <!--                @click="onUpdateSubtitle(null)"-->
-              <!--              >-->
-              <!--                <m-subtitles-icon />-->
-              <!--              </div>-->
+              <!-- Caption button -->
+              <div
+                v-if="subtitleList && subtitleList.length > 0"
+                class="cursor-pointer"
+                style="margin-right: 4px;"
+              >
+                <m-closed-caption-icon
+                  v-if="currentSubtitleIndex >= 0 && lastSubtitleIndex >= 0"
+                  @click="toggleSubtitle(false)"
+                />
+                <m-closed-caption-off-icon
+                  v-else
+                  @click="toggleSubtitle(true)"
+                />
+              </div>
               <drop-menu>
                 <template
                   #activator
                 >
-                  <button>
-                    <m-settings-icon />
-                  </button>
+                  <m-settings-icon
+                    class="cursor-pointer"
+                  />
                 </template>
                 <progress-bar-setting-content
                   :playback-rate-list="playbackRateList"
                   :subtitle-list="subtitleList"
                   :current-playback-rate="currentPlaybackRate"
                   :current-subtitle-index="currentSubtitleIndex"
-                  @update:playback-rate="onUpdatePlaybackRate"
-                  @update:subtitle="onUpdateSubtitle"
+                  @update:playback-rate="updatePlaybackRate"
+                  @update:subtitle="updateSubtitle"
                 />
               </drop-menu>
               <slot
@@ -179,7 +189,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
 import {
   VueVideoPlayerDefaultPlaybackRateList,
   VueVideoPlayerSubtitle,
@@ -190,12 +200,13 @@ import VolumeController from './components/VolumeController.vue'
 import DropMenu from './components/Dropmenu.vue'
 import ProgressBar from './components/ProgressBar.vue'
 import ProgressBarSettingContent from '@/components/SettingContent.vue'
-import MPlayIcon from 'vue-material-design-icons/Play.vue'
-import MPauseIcon from 'vue-material-design-icons/Pause.vue'
-import MSettingsIcon from 'vue-material-design-icons/AccountSettings.vue'
-import MFullscreenIcon from 'vue-material-design-icons/Fullscreen.vue'
-import MFullscreenExitIcon from 'vue-material-design-icons/FullscreenExit.vue'
-import MSubtitlesIcon from 'vue-material-design-icons/Subtitles.vue'
+import MPlayIcon from './components/icons/MPlayArrowIcon.vue'
+import MPauseIcon from './components/icons/MPauseIcon.vue'
+import MSettingsIcon from './components/icons/MSettingIcon.vue'
+import MFullscreenIcon from './components/icons/MFullScreenIcon.vue'
+import MFullscreenExitIcon from './components/icons/MFullScreenExitIcon.vue'
+import MClosedCaptionIcon from './components/icons/MClosedCaption.vue'
+import MClosedCaptionOffIcon from './components/icons/MClosedCaptionOff.vue'
 
 const props = defineProps({
   videoList: {
@@ -289,6 +300,7 @@ const currentSubtitleCue = ref('')
 const currentPlaybackRate = ref(1)
 /* Current selected subtitle */
 const currentSubtitleIndex = ref(-1)
+const lastSubtitleIndex = ref(-1)
 /* Error message */
 const errorMsg = ref('')
 
@@ -343,10 +355,11 @@ const onCanplay = () => {
   /* Set the duration */
   if (videoRef.value) {
     duration.value = videoRef.value?.duration || 0
-    videoRef.value.volume = videoVolume.value
+    /* Init the volume */
+    updateVolume(props.initVolume / 100)
+    /* Init the track of text */
     videoRef.value.textTracks[0].addEventListener('cuechange', onCueChange)
   }
-  videoVolume.value = props.initVolume / 100
 }
 
 const onCueChange = (event: Event) => {
@@ -432,10 +445,10 @@ const moveBackward = () => {
 const volumeUp = () => {
   const newVolume = parseFloat((videoVolume.value + 0.05).toFixed(2))
   if (newVolume <= 1) {
-    onUpdateVolume(newVolume)
+    updateVolume(newVolume)
     initMenuTimer()
   } else if (newVolume >= 1) {
-    onUpdateVolume(1)
+    updateVolume(1)
     initMenuTimer()
   }
 }
@@ -443,10 +456,10 @@ const volumeUp = () => {
 const volumeDown = () => {
   const newVolume = parseFloat((videoVolume.value - 0.05).toFixed(2))
   if (newVolume >= 0) {
-    onUpdateVolume(newVolume)
+    updateVolume(newVolume)
     initMenuTimer()
   } else if (newVolume < 0) {
-    onUpdateVolume(videoVolume.value - 0)
+    updateVolume(videoVolume.value - 0)
   }
 }
 
@@ -458,6 +471,10 @@ const onMouseLeaveContainer = () => {
   isDisplayMenu.value = false
 }
 
+/**
+ * Toggle full screen. <br>
+ * If it's fullscreen, exit fullscreen mode, else enter fullscreen mode.
+ */
 const toggleIsFullScreen = () => {
   // @TODO: If there is no bug when publish, remove following comments
   // isFullScreen.value = !isFullScreen.value
@@ -474,16 +491,21 @@ const toggleIsFullScreen = () => {
   }
 }
 
-const onUpdateVolume = (newVolume: number) => {
-  if (videoRef.value) {
+/**
+ * Change volume level
+ * @param newVolume - volume level ( should be 0 to 1 )
+ */
+const updateVolume = (newVolume: number) => {
+  if (videoRef.value && newVolume >= 0 && newVolume <= 1) {
     videoRef.value.volume = newVolume
     videoVolume.value = newVolume
   }
 }
 
 /**
- * Key down event handler
- * @param event - keyboard event, look at the README.md
+ * Key down event handler <br>
+ * Edit the README.md after event is added or removed.
+ * @param event - keyboard event
  */
 const onKeydown = (event: KeyboardEvent) => {
   switch (event.code) {
@@ -505,6 +527,9 @@ const onKeydown = (event: KeyboardEvent) => {
   }
 }
 
+/**
+ * Fire this event when fullscreen mode is changed.
+ */
 const onFullscreenChange = () => {
   const fs = document as any
   if (!fs.webkitIsFullScreen && !fs.mozFullScreen && !fs.msFullscreenElement) {
@@ -514,29 +539,64 @@ const onFullscreenChange = () => {
   }
 }
 
-const onUpdateCurrentTime = (newCurrentTime: number) => {
-  if (videoRef.value) {
+/**
+ * Update current time
+ * @param newCurrentTime - new current time. should be in 0 to duration.
+ */
+const updateCurrentTime = (newCurrentTime: number) => {
+  if (videoRef.value && newCurrentTime >= 0 && newCurrentTime <= duration.value) {
     currentTime.value = newCurrentTime
     videoRef.value.currentTime = newCurrentTime
   }
 }
 
-const onUpdatePlaybackRate = (newPlaybackRate: number) => {
-  if (videoRef.value) {
+/**
+ * Update playback rate (speed of video)
+ * @param newPlaybackRate - new playback rate, should be greater than or equal to 0
+ */
+const updatePlaybackRate = (newPlaybackRate: number) => {
+  if (videoRef.value && newPlaybackRate >= 0) {
     videoRef.value.playbackRate = newPlaybackRate
     currentPlaybackRate.value = newPlaybackRate
   }
 }
 
-const onUpdateSubtitle = (newSubtitle: VueVideoPlayerSubtitle | null) => {
+/**
+ * Update current subtitle
+ * @param newSubtitle
+ */
+const updateSubtitle = (newSubtitle: VueVideoPlayerSubtitle | null) => {
+  if (videoRef.value && videoRef.value.textTracks.length) {
+    videoRef.value.textTracks[0].removeEventListener('cuechange', onCueChange)
+  }
   if (props.subtitleList && newSubtitle) {
     const findIndex = props.subtitleList.findIndex(subtitle => subtitle.label === newSubtitle.label)
     if (findIndex >= 0) {
       currentSubtitleIndex.value = findIndex
+      /* Add event */
+      nextTick(() => {
+        if (videoRef.value) {
+          videoRef.value.textTracks[0].addEventListener('cuechange', onCueChange)
+        }
+      })
     }
   } else {
+    currentSubtitleCue.value = ''
     currentSubtitleIndex.value = -1
   }
+  lastSubtitleIndex.value = currentSubtitleIndex.value
+}
+
+const toggleSubtitle = (bool: boolean) => {
+  const tempLastSubtitleIndex = lastSubtitleIndex.value >= 0 && props.subtitleList && props.subtitleList.length > 0
+    ? lastSubtitleIndex.value : 0
+
+  if (bool && props.subtitleList && props.subtitleList.length) {
+    updateSubtitle(props.subtitleList[tempLastSubtitleIndex])
+  } else {
+    updateSubtitle(null)
+  }
+  lastSubtitleIndex.value = tempLastSubtitleIndex
 }
 
 /**
@@ -549,11 +609,12 @@ const initDefaultSubtitle = () => {
   } else {
     currentSubtitleIndex.value = -1
   }
+  lastSubtitleIndex.value = currentSubtitleIndex.value
 }
 
 const initPlaybackRate = () => {
   if (props.initPlaybackRate && videoRef.value) {
-    onUpdatePlaybackRate(props.initPlaybackRate)
+    updatePlaybackRate(props.initPlaybackRate)
   }
 }
 

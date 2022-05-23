@@ -28,6 +28,10 @@
   .cursor-pointer {
     cursor: pointer;
   }
+
+  .primary-color-icon {
+    fill: $vue-video-player-primary-color;
+  }
 }
 
 .vue-video-player-controller-container {

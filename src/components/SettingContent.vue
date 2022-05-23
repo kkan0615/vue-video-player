@@ -31,7 +31,7 @@
       <div
         class="vue-video-player-drop-menu-content-title-container"
       >
-        <m-arrow-left-icon
+        <m-arrow-back-icon
           class="vue-video-player-drop-menu-content-title-container--icon"
           @click="changeCurrentMenuIndex(0)"
         />
@@ -75,7 +75,7 @@
       <div
         class="vue-video-player-drop-menu-content-title-container"
       >
-        <m-arrow-left-icon
+        <m-arrow-back-icon
           class="vue-video-player-drop-menu-content-title-container--icon"
           @click="changeCurrentMenuIndex(0)"
         />
@@ -138,8 +138,8 @@ export default {
 <script setup lang="ts">
 import { PropType, ref } from 'vue'
 import { VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerSubtitle } from '@/types'
-import MArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
-import MCheckIcon from 'vue-material-design-icons/Check.vue'
+import MArrowBackIcon from '../components/icons/MArrowBackIcon.vue'
+import MCheckIcon from '../components/icons/MCheckIcon.vue'
 
 const props = defineProps({
   playbackRateList: {
