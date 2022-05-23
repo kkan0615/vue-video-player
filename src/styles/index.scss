@@ -28,10 +28,6 @@
   .cursor-pointer {
     cursor: pointer;
   }
-
-  //&:hover .vue-video-player-controller {
-  //  display: flex;
-  //}
 }
 
 .vue-video-player-controller-container {
@@ -41,10 +37,27 @@
   top: 0;
 }
 
+.vue-video-player-subtitle-container {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  &-subtitle {
+    white-space: pre-wrap;
+    background-color: black;
+    font-size: 32px;
+  }
+}
+
 .vue-video-player-video-container {
   position: relative;
   height: 100%;
   width: 100%;
+
+  video::cue {
+    opacity: 0;
+  }
 }
 
 .vue-video-player-video {
@@ -70,19 +83,8 @@
   z-index: 1;
 }
 
-//&--slider-container {
-//  width: 52px;
-//  display: none;
-//  margin-left: 5px;
-//}
-//
-//&:hover &--slider-container {
-//  display: block;
-//}
-
 .vue-video-player-controller {
   position: absolute;
-  //display: none;
   display: flex;
   flex-direction: column;
   z-index: 1;
@@ -96,21 +98,14 @@
   height: 7px;
   width: 100%;
   cursor: pointer;
-  //background-color: $vue-video-player-progress-bar-background;
 
   input[type="range"] {
-    //border: solid 1px $vue-video-player-primary-color;
-    //border-radius: 8px;
     height: 100%;
     width: 100%;
     outline: none;
     cursor: pointer;
     transition: background 450ms ease-in;
     -webkit-appearance: none;
-  }
-
-  input[type="range"]::-webkit-slider-runnable-track {
-    //margin-top: 5px;
   }
 
   /*
@@ -135,12 +130,6 @@
     display: block;
   }
 }
-
-//.vue-video-player-controller-progress-bar-running {
-//  height: 100%;
-//  overflow: hidden;
-//  background-color: $vue-video-player-primary-color;
-//}
 
 .vue-video-player-controller-menu {
   padding-right: 5px;

@@ -14,8 +14,6 @@
       v-show="!!videoList.length"
       class="vue-video-player-video-container"
     >
-      <!--      class="vue-video-player-video"-->
-
       <video
         ref="videoRef"
         crossorigin="Access-Control-Allow-Origin: *"
@@ -39,6 +37,8 @@
         <!-- Subtitle -->
         <track
           v-if="currentSubtitle"
+          ref="videoTrackRef"
+          mode="hidden"
           :label="currentSubtitle.label"
           :kind="currentSubtitle.kind"
           :srclang="currentSubtitle.srclang"
@@ -46,13 +46,30 @@
           default
         >
       </video>
+      <!-- Subtitle -->
+      <div
+        v-if="currentSubtitleCue"
+        class="vue-video-player-subtitle-container"
+        :style="{
+          bottom: (videoStatus === 'stop' || videoStatus === 'pause') || isDisplayMenu === true ? '50px' : '25px'
+        }"
+      >
+        <span
+          :class="subtitleClass"
+          class="vue-video-player-subtitle-container-subtitle"
+        >
+          {{ currentSubtitleCue }}
+        </span>
+      </div>
       <div
         class="vue-video-player-controller-container"
       >
+        <!-- Middle button container -->
         <div
           class="vue-video-player-middle-button-container"
           @click="playOrPause"
         >
+          <!-- Play button -->
           <div
             class="vue-video-player-middle-button"
           >
@@ -108,6 +125,9 @@
             <div
               style="display: flex"
             >
+              <slot
+                name="prependInnerMenu"
+              />
               <div
                 class="cursor-pointer"
                 @click="toggleIsFullScreen"
@@ -119,26 +139,32 @@
                   v-else
                 />
               </div>
-
+              <!--              <div-->
+              <!--                class="cursor-pointer"-->
+              <!--                @click="onUpdateSubtitle(null)"-->
+              <!--              >-->
+              <!--                <m-subtitles-icon />-->
+              <!--              </div>-->
+              <drop-menu>
+                <template
+                  #activator
+                >
+                  <button>
+                    <m-settings-icon />
+                  </button>
+                </template>
+                <progress-bar-setting-content
+                  :playback-rate-list="playbackRateList"
+                  :subtitle-list="subtitleList"
+                  :current-playback-rate="currentPlaybackRate"
+                  :current-subtitle-index="currentSubtitleIndex"
+                  @update:playback-rate="onUpdatePlaybackRate"
+                  @update:subtitle="onUpdateSubtitle"
+                />
+              </drop-menu>
               <slot
-                name="endController"
-              >
-                <drop-menu>
-                  <template
-                    #activator
-                  >
-                    <button>
-                      <m-settings-icon />
-                    </button>
-                  </template>
-                  <progress-bar-setting-content
-                    :playback-rate-list="playbackRateList"
-                    :subtitle-list="subtitleList"
-                    @update:playback-rate="onUpdatePlaybackRate"
-                    @update:subtitle="onUpdateSubtitle"
-                  />
-                </drop-menu>
-              </slot>
+                name="appendInnerMenu"
+              />
             </div>
           </div>
         </div>
@@ -169,6 +195,7 @@ import MPauseIcon from 'vue-material-design-icons/Pause.vue'
 import MSettingsIcon from 'vue-material-design-icons/AccountSettings.vue'
 import MFullscreenIcon from 'vue-material-design-icons/Fullscreen.vue'
 import MFullscreenExitIcon from 'vue-material-design-icons/FullscreenExit.vue'
+import MSubtitlesIcon from 'vue-material-design-icons/Subtitles.vue'
 
 const props = defineProps({
   videoList: {
@@ -196,6 +223,11 @@ const props = defineProps({
     required: false,
     default: 10,
   },
+  initPlaybackRate: {
+    type: Number,
+    required: false,
+    default: 1,
+  },
   videoObjectFit: {
     type: String as PropType<'cover' | 'fill' | 'contain' | 'none'>,
     required: false,
@@ -217,14 +249,14 @@ const props = defineProps({
         kind: 'subtitles',
         srclang: 'pt',
         src: new URL('./assets/sample.vtt', import.meta.url) as any,
-        default: true,
+        default: false,
       },
       {
         label: 'en',
         kind: 'subtitles',
         srclang: 'en',
         src: new URL('./assets/sample2.vtt', import.meta.url) as any,
-        default: false,
+        default: true,
       }
     ] as VueVideoPlayerSubtitle[]
   },
@@ -232,11 +264,17 @@ const props = defineProps({
     type: Array as PropType<number[]>,
     required: false,
     default: () => VueVideoPlayerDefaultPlaybackRateList,
+  },
+  subtitleClass: {
+    type: [Object, String],
+    required: false,
+    default: '',
   }
 })
 
 /* Ref for video html element */
 const videoRef = ref<HTMLVideoElement>()
+const videoTrackRef = ref<HTMLTrackElement>()
 const videoStatus = ref<VueVideoPlayerVideoStatus>('stop')
 const bufferBarPercentage = ref(50)
 const duration = ref(0)
@@ -246,8 +284,11 @@ const videoVolume = ref(0)
 const isFullScreen = ref(false)
 const isDisplayMenu = ref(true)
 const menuTimer = ref<NodeJS.Timeout | null>(null)
+const currentSubtitleCue = ref('')
+/* Current playback rate */
+const currentPlaybackRate = ref(1)
 /* Current selected subtitle */
-const currentSubtitleIndex = ref(0)
+const currentSubtitleIndex = ref(-1)
 /* Error message */
 const errorMsg = ref('')
 
@@ -265,8 +306,11 @@ const formattedCurrentTime = computed(() => {
   return `${minutes}:${seconds}`
 })
 
+/**
+ * Current subtitle (Track)
+ */
 const currentSubtitle = computed(() => {
-  return props.subtitleList && props.subtitleList.length > 0
+  return props.subtitleList && props.subtitleList.length > 0 && currentSubtitleIndex.value >= 0
     ? props.subtitleList[currentSubtitleIndex.value]
     : null
 })
@@ -277,6 +321,7 @@ onMounted(() => {
   }
 
   initDefaultSubtitle()
+  initPlaybackRate()
   window.addEventListener('keydown', onKeydown)
   document.addEventListener('fullscreenchange', onFullscreenChange)
 })
@@ -286,6 +331,9 @@ onBeforeUnmount(() => {
 
   window.removeEventListener('keydown', onKeydown)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
+  if (videoRef.value) {
+    videoRef.value.textTracks[0].removeEventListener('cuechange', onCueChange)
+  }
 })
 
 /**
@@ -296,8 +344,21 @@ const onCanplay = () => {
   if (videoRef.value) {
     duration.value = videoRef.value?.duration || 0
     videoRef.value.volume = videoVolume.value
+    videoRef.value.textTracks[0].addEventListener('cuechange', onCueChange)
   }
   videoVolume.value = props.initVolume / 100
+}
+
+const onCueChange = (event: Event) => {
+  const currentTarget = event.currentTarget as TextTrack
+  const cue = currentTarget.activeCues && currentTarget.activeCues.length > 0
+    ? currentTarget.activeCues[0]
+    : null
+  if (cue) {
+    currentSubtitleCue.value = (cue as VTTCue).text
+  } else {
+    currentSubtitleCue.value = ''
+  }
 }
 
 const onPlay = () => {
@@ -420,6 +481,10 @@ const onUpdateVolume = (newVolume: number) => {
   }
 }
 
+/**
+ * Key down event handler
+ * @param event - keyboard event, look at the README.md
+ */
 const onKeydown = (event: KeyboardEvent) => {
   switch (event.code) {
     case 'Space':
@@ -459,22 +524,36 @@ const onUpdateCurrentTime = (newCurrentTime: number) => {
 const onUpdatePlaybackRate = (newPlaybackRate: number) => {
   if (videoRef.value) {
     videoRef.value.playbackRate = newPlaybackRate
+    currentPlaybackRate.value = newPlaybackRate
   }
 }
 
-const onUpdateSubtitle = (newSubtitle: VueVideoPlayerSubtitle) => {
-  if (props.subtitleList) {
+const onUpdateSubtitle = (newSubtitle: VueVideoPlayerSubtitle | null) => {
+  if (props.subtitleList && newSubtitle) {
     const findIndex = props.subtitleList.findIndex(subtitle => subtitle.label === newSubtitle.label)
     if (findIndex >= 0) {
       currentSubtitleIndex.value = findIndex
     }
+  } else {
+    currentSubtitleIndex.value = -1
   }
 }
 
+/**
+ * Init subtitle
+ */
 const initDefaultSubtitle = () => {
   if (props.subtitleList) {
     const findIndex = props.subtitleList.findIndex(subtitle => subtitle.default)
-    currentSubtitleIndex.value = findIndex >= 0 ? findIndex : 0
+    currentSubtitleIndex.value = findIndex >= 0 ? findIndex : -1
+  } else {
+    currentSubtitleIndex.value = -1
+  }
+}
+
+const initPlaybackRate = () => {
+  if (props.initPlaybackRate && videoRef.value) {
+    onUpdatePlaybackRate(props.initPlaybackRate)
   }
 }
 

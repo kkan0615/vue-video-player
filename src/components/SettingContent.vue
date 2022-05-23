@@ -10,19 +10,20 @@
         class="vue-video-player-drop-menu-content-list"
       >
         <li
-          class="vue-video-player-drop-menu-content-list--item"
+          class="vue-video-player-drop-menu-content-list-item"
           @click="changeCurrentMenuIndex(1)"
         >
           Speed
         </li>
         <li
-          class="vue-video-player-drop-menu-content-list--item"
+          class="vue-video-player-drop-menu-content-list-item"
           @click="changeCurrentMenuIndex(2)"
         >
           Subtitle
         </li>
       </ul>
     </div>
+    <!-- Speed -->
     <div
       v-show="currentMenuIndex === 1"
       style="height: 100%;"
@@ -47,13 +48,26 @@
         <li
           v-for="playbackRate in playbackRateList"
           :key="playbackRate"
-          class="vue-video-player-drop-menu-content-list--item"
+          class="vue-video-player-drop-menu-content-list-item"
           @click="changePlaybackRate(playbackRate)"
         >
-          {{ playbackRate }}
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-check-icon
+              v-if="currentPlaybackRate === playbackRate"
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-list-item--label"
+          >
+            {{ playbackRate }}
+          </div>
         </li>
       </ul>
     </div>
+    <!-- Subtitle -->
     <div
       v-show="currentMenuIndex === 2"
       style="height: 100%;"
@@ -76,12 +90,41 @@
         class="vue-video-player-drop-menu-content-list"
       >
         <li
+          class="vue-video-player-drop-menu-content-list-item"
+          @click="changeSubtitle(null)"
+        >
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-check-icon
+              v-if="currentSubtitleIndex === -1"
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-list-item--label"
+          >
+            no subtitle
+          </div>
+        </li>
+        <li
           v-for="(subtitle, index) in subtitleList"
           :key="`subtitle-${index}`"
-          class="vue-video-player-drop-menu-content-list--item"
+          class="vue-video-player-drop-menu-content-list-item"
           @click="changeSubtitle(subtitle)"
         >
-          {{ subtitle.label }}
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-check-icon
+              v-if="currentSubtitleIndex === index"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-list-item--label"
+          >
+            {{ subtitle.label }}
+          </div>
         </li>
       </ul>
     </div>
@@ -96,6 +139,7 @@ export default {
 import { PropType, ref } from 'vue'
 import { VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerSubtitle } from '@/types'
 import MArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
+import MCheckIcon from 'vue-material-design-icons/Check.vue'
 
 const props = defineProps({
   playbackRateList: {
@@ -108,11 +152,21 @@ const props = defineProps({
     required: false,
     default: () => [] as VueVideoPlayerSubtitle[]
   },
+  currentPlaybackRate: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+  currentSubtitleIndex: {
+    type: Number,
+    required: true,
+    default: -1,
+  },
 })
 
 const emits = defineEmits<{
   (e: 'update:playbackRate', newPlaybackRate: number): void
-  (e: 'update:subtitle', subtitle: VueVideoPlayerSubtitle): void
+  (e: 'update:subtitle', subtitle: VueVideoPlayerSubtitle | null): void
 }>()
 
 const currentMenuIndex = ref(0)
@@ -125,7 +179,7 @@ const changePlaybackRate = (newPlaybackRate: number) => {
   emits('update:playbackRate', newPlaybackRate)
 }
 
-const changeSubtitle = (subtitle: VueVideoPlayerSubtitle) => {
+const changeSubtitle = (subtitle: VueVideoPlayerSubtitle | null) => {
   emits('update:subtitle', subtitle)
 }
 </script>

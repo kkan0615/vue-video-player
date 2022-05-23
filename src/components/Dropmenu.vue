@@ -28,14 +28,6 @@ import { onBeforeMount, ref } from 'vue'
 
 const containerRef = ref<HTMLDivElement>()
 
-// const props = defineProps({
-//   modelValue: {
-//     type: Boolean,
-//     required: false,
-//     default: false,
-//   }
-// })
-
 onBeforeMount(() => {
   window.addEventListener('click', clickInEl)
 })

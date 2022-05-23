@@ -31,9 +31,19 @@
   }
 
   &-list {
-    &--item {
-     cursor: pointer;
-     padding: 8px 15px;
+    &-item {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 9px 15px;
+
+      &--icon {
+        padding-top: 2px;
+        min-width: 30px;
+      }
+
+      &--label {
+      }
 
       &:hover {
         background-color: $vue-video-player-drop-menu-content-list-item-hover-color;

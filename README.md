@@ -34,10 +34,19 @@ app
 |         |         |         |                              |
 
 ## Slot
-| Name         | Description                  |
-|--------------|------------------------------|
-| appendInner  | Video Src                    |
-| disable      | Disable to press any buttons |
-|              |                              |
+| Name             | Description |
+|------------------|-------------|
+| prependInnerMenu |             |
+| appendInnerMenu  |             |
+|                  |             |
 
+## Key event
+| Key        | Description   |
+|------------|---------------|
+| space      | Play or pause |
+| ArrowRight | move forward  |
+| ArrowLeft  | move backward |
+| ArrowUp    | volume up     |
+| ArrowDown  | volume down   |
+|            |               |
 ## Support me
