@@ -18,10 +18,12 @@
         ref="videoRef"
         crossorigin="Access-Control-Allow-Origin: *"
         preload="metadata"
+        :loop="loop"
         class="vue-video-player-video"
         :style="{
           'object-fit': videoObjectFit,
         }"
+        :poster="poster"
         @play="onPlay"
         @pause="onPause"
         @ended="onEnded"
@@ -92,6 +94,9 @@
           <div
             class="vue-video-player-controller-menu"
           >
+            <slot
+              name="prependInnerMenu"
+            />
             <div
               class="vue-video-player-controller-button"
             >
@@ -108,6 +113,9 @@
                 <m-play-icon />
               </button>
             </div>
+            <slot
+              name="betweenPlayAndVolume"
+            />
             <volume-controller
               :volume="videoVolume"
               @update:volume="updateVolume"
@@ -125,9 +133,6 @@
             <div
               style="display: flex"
             >
-              <slot
-                name="prependInnerMenu"
-              />
               <div
                 class="cursor-pointer"
                 style="margin-right: 4px;"
@@ -225,12 +230,22 @@ const props = defineProps({
   height: {
     type: String,
     required: false,
-    default: '600px'
+    default: '600px',
   },
   width: {
     type: String,
     required: false,
-    default: '1024px'
+    default: '1024px',
+  },
+  poster: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  loop: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
   initVolume: {
     type: Number,
@@ -295,7 +310,6 @@ const props = defineProps({
 const videoRef = ref<HTMLVideoElement>()
 const videoTrackRef = ref<HTMLTrackElement>()
 const videoStatus = ref<VueVideoPlayerVideoStatus>('stop')
-const bufferBarPercentage = ref(50)
 const duration = ref(0)
 const currentTime = ref(0)
 const timer = ref<NodeJS.Timer | null>(null)
