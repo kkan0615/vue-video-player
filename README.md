@@ -27,11 +27,15 @@ app
 
 
 ## Props
-| Name    | Type    | Default | Description                  |
-|---------|---------|---------|------------------------------|
-| src     | string  |         | Video Src                    |
-| disable | boolean | false   | Disable to press any buttons |
-|         |         |         |                              |
+| Name             | Type    | Default | Description                  |
+|------------------|---------|---------|------------------------------|
+| videoList        | Array   | []      | Video list                   |
+| height           | String  | 600px   | Video height                 |
+| width            | String  | 600px   | Video width                  |
+| initVolume       | number  | 100     | 0 to 100, first volume size  |
+| initPlaybackRate | number  | 1       | 0 to 2, first volume size    |
+| disable          | boolean | false   | Disable to press any buttons |
+|                  |         |         |                              |
 
 ## Slot
 | Name             | Description |

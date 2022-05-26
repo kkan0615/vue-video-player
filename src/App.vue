@@ -164,6 +164,8 @@
                   />
                 </template>
                 <progress-bar-setting-content
+                  :video-ref="videoRef"
+                  :label-list="labelList"
                   :playback-rate-list="playbackRateList"
                   :subtitle-list="subtitleList"
                   :current-playback-rate="currentPlaybackRate"
@@ -191,7 +193,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
 import {
-  VueVideoPlayerDefaultPlaybackRateList,
+  VueVideoPlayerDefaultLabels,
+  VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerLabels,
   VueVideoPlayerSubtitle,
   VueVideoPlayerVideo,
   VueVideoPlayerVideoStatus
@@ -276,6 +279,11 @@ const props = defineProps({
     required: false,
     default: () => VueVideoPlayerDefaultPlaybackRateList,
   },
+  labelList: {
+    type: Object as PropType<VueVideoPlayerLabels>,
+    required: false,
+    default: () => VueVideoPlayerDefaultLabels,
+  },
   subtitleClass: {
     type: [Object, String],
     required: false,
@@ -358,7 +366,9 @@ const onCanplay = () => {
     /* Init the volume */
     updateVolume(props.initVolume / 100)
     /* Init the track of text */
-    videoRef.value.textTracks[0].addEventListener('cuechange', onCueChange)
+    if (videoRef.value.textTracks.length) {
+      videoRef.value.textTracks[0].addEventListener('cuechange', onCueChange)
+    }
   }
 }
 

@@ -24,9 +24,10 @@ export default {
 }
 </script>
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, provide, ref } from 'vue'
 
 const containerRef = ref<HTMLDivElement>()
+
 
 onBeforeMount(() => {
   window.addEventListener('click', clickInEl)
@@ -37,10 +38,15 @@ const isOpen = ref(false)
 const toggleIsOpen = () => {
   isOpen.value = !isOpen.value
 }
+const changeIsOpen = (bool: boolean) => {
+  isOpen.value = bool
+}
 
 const clickInEl = (e: any) => {
   if (containerRef.value && !containerRef.value.contains(e.target)) {
     isOpen.value = false
   }
 }
+
+provide('changeIsOpen', changeIsOpen)
 </script>

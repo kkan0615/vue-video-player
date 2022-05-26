@@ -13,13 +13,69 @@
           class="vue-video-player-drop-menu-content-list-item"
           @click="changeCurrentMenuIndex(1)"
         >
-          Speed
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-speed-icon
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-title-container--title"
+          >
+            {{ labelList.speed }}
+          </div>
         </li>
         <li
+          v-if="subtitleList && !!subtitleList.length"
           class="vue-video-player-drop-menu-content-list-item"
           @click="changeCurrentMenuIndex(2)"
         >
-          Subtitle
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-subtitles-icon
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-title-container--title"
+          >
+            {{ labelList.subtitle }}
+          </div>
+        </li>
+        <li
+          class="vue-video-player-drop-menu-content-list-item"
+          @click="togglePictureInPicture"
+        >
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-picture-in-picture-icon
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-title-container--title"
+          >
+            {{ labelList.pictureInPicture }}
+          </div>
+        </li>
+        <li
+          class="vue-video-player-drop-menu-content-list-item"
+        >
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-display-setting-icon
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-title-container--title"
+          >
+            {{ labelList.quality }}
+          </div>
         </li>
       </ul>
     </div>
@@ -38,7 +94,7 @@
         <div
           class="vue-video-player-drop-menu-content-title-container--title"
         >
-          Speed
+          {{ labelList.speed }}
         </div>
       </div>
       <hr>
@@ -69,6 +125,7 @@
     </div>
     <!-- Subtitle -->
     <div
+      v-if="subtitleList && !!subtitleList.length"
       v-show="currentMenuIndex === 2"
       style="height: 100%;"
     >
@@ -82,7 +139,7 @@
         <div
           class="vue-video-player-drop-menu-content-title-container--title"
         >
-          Subtitle
+          {{ labelList.subtitle }}
         </div>
       </div>
       <hr>
@@ -98,13 +155,13 @@
           >
             <m-check-icon
               v-if="currentSubtitleIndex === -1"
-              :size="18"
+              :size="16"
             />
           </div>
           <div
             class="vue-video-player-drop-menu-content-list-item--label"
           >
-            no subtitle
+            {{ labelList.noSubtitle }}
           </div>
         </li>
         <li
@@ -118,6 +175,7 @@
           >
             <m-check-icon
               v-if="currentSubtitleIndex === index"
+              :size="16"
             />
           </div>
           <div
@@ -136,12 +194,31 @@ export default {
 }
 </script>
 <script setup lang="ts">
-import { PropType, ref } from 'vue'
-import { VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerSubtitle } from '@/types'
+import { inject, PropType, ref } from 'vue'
+import {
+  VueVideoPlayerDefaultLabels,
+  VueVideoPlayerDefaultPlaybackRateList,
+  VueVideoPlayerLabels,
+  VueVideoPlayerSubtitle
+} from '@/types'
 import MArrowBackIcon from '../components/icons/MArrowBackIcon.vue'
 import MCheckIcon from '../components/icons/MCheckIcon.vue'
+import MSpeedIcon from '../components/icons/MSpeed.vue'
+import MDisplaySettingIcon from '../components/icons/MDisplaySetting.vue'
+import MSubtitlesIcon from '../components/icons/MSubtitles.vue'
+import MPictureInPictureIcon from '../components/icons/MPictureInPicture.vue'
 
 const props = defineProps({
+  videoRef: {
+    type: Object as PropType<HTMLVideoElement>,
+    required: true,
+    default: null,
+  },
+  labelList: {
+    type: Object as PropType<VueVideoPlayerLabels>,
+    required: true,
+    default: () => VueVideoPlayerDefaultLabels,
+  },
   playbackRateList: {
     type: Array as PropType<number[]>,
     required: true,
@@ -169,6 +246,8 @@ const emits = defineEmits<{
   (e: 'update:subtitle', subtitle: VueVideoPlayerSubtitle | null): void
 }>()
 
+const changeIsOpen = inject('changeIsOpen') as (bool: boolean) => void
+
 const currentMenuIndex = ref(0)
 
 const changeCurrentMenuIndex = (index: number) => {
@@ -181,5 +260,17 @@ const changePlaybackRate = (newPlaybackRate: number) => {
 
 const changeSubtitle = (subtitle: VueVideoPlayerSubtitle | null) => {
   emits('update:subtitle', subtitle)
+}
+
+const togglePictureInPicture = () => {
+  if (document.pictureInPictureElement) {
+    document.exitPictureInPicture()
+    changeIsOpen(false)
+  } else {
+    if (document.pictureInPictureEnabled && props.videoRef) {
+      props.videoRef.requestPictureInPicture()
+      changeIsOpen(false)
+    }
+  }
 }
 </script>
