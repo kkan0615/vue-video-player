@@ -18,24 +18,31 @@
         ref="videoRef"
         crossorigin="Access-Control-Allow-Origin: *"
         preload="metadata"
+        :src="currentVideo ? currentVideo.src : null"
         :loop="loop"
         class="vue-video-player-video"
         :style="{
           'object-fit': videoObjectFit,
         }"
         :poster="poster"
+        @error="onErrorVideo"
         @play="onPlay"
         @pause="onPause"
         @ended="onEnded"
         @canplay="onCanplay"
       >
         <!-- Video -->
-        <source
-          v-for="(video, index) in videoList"
-          :key="`video-${index}`"
-          :src="video.src"
-          :type="video.type"
-        >
+        <!--        <source-->
+        <!--          v-for="(video, index) in videoList"-->
+        <!--          :key="`video-${index}`"-->
+        <!--          :src="video.src"-->
+        <!--          :type="video.type"-->
+        <!--        >-->
+        <!--        <source-->
+        <!--          v-if="currentVideo"-->
+        <!--          :src="currentVideo.src"-->
+        <!--          :type="currentVideoIndex.type"-->
+        <!--        >-->
         <!-- Subtitle -->
         <track
           v-if="currentSubtitle"
@@ -170,13 +177,16 @@
                 </template>
                 <progress-bar-setting-content
                   :video-ref="videoRef"
+                  :video-list="videoList"
                   :label-list="labelList"
                   :playback-rate-list="playbackRateList"
                   :subtitle-list="subtitleList"
+                  :current-video-index="currentVideoIndex"
                   :current-playback-rate="currentPlaybackRate"
                   :current-subtitle-index="currentSubtitleIndex"
                   @update:playback-rate="updatePlaybackRate"
                   @update:subtitle="updateSubtitle"
+                  @update:quality="updateQuality"
                 />
               </drop-menu>
               <slot
@@ -198,6 +208,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
 import {
+  ExtendSettingContent,
   VueVideoPlayerDefaultLabels,
   VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerLabels,
   VueVideoPlayerSubtitle,
@@ -220,12 +231,26 @@ const props = defineProps({
   videoList: {
     type: Array as PropType<VueVideoPlayerVideo[]>,
     required: true,
-    default: () => [{
-      // @TODO: Remove it when publish
-      src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-      // src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
-      type: 'video/webm',
-    }]
+    default: () =>
+      [
+        {
+        // @TODO: Remove it when publish
+          src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+          // src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
+          type: 'video/mp4',
+          label: '720px',
+          quality: '720px',
+          default: true,
+        },
+        {
+          // @TODO: Remove it when publish
+          // src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+          src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
+          type: 'video/webm',
+          quality: '480px'
+        },
+
+      ] as VueVideoPlayerVideo[]
   },
   height: {
     type: String,
@@ -299,6 +324,11 @@ const props = defineProps({
     required: false,
     default: () => VueVideoPlayerDefaultLabels,
   },
+  extendSettingContent: {
+    type: Object as PropType<ExtendSettingContent>,
+    required: false,
+    default: () => []
+  },
   subtitleClass: {
     type: [Object, String],
     required: false,
@@ -317,6 +347,7 @@ const videoVolume = ref(0)
 const isFullScreen = ref(false)
 const isDisplayMenu = ref(true)
 const menuTimer = ref<NodeJS.Timeout | null>(null)
+const currentVideoIndex = ref(-1)
 const currentSubtitleCue = ref('')
 /* Current playback rate */
 const currentPlaybackRate = ref(1)
@@ -343,6 +374,16 @@ const formattedCurrentTime = computed(() => {
 /**
  * Current subtitle (Track)
  */
+const currentVideo = computed(() => {
+  return props.videoList && props.videoList.length > 0 && currentVideoIndex.value >= 0
+    ? props.videoList[currentVideoIndex.value]
+    : null
+})
+
+
+/**
+ * Current subtitle (Track)
+ */
 const currentSubtitle = computed(() => {
   return props.subtitleList && props.subtitleList.length > 0 && currentSubtitleIndex.value >= 0
     ? props.subtitleList[currentSubtitleIndex.value]
@@ -353,7 +394,7 @@ onMounted(() => {
   if (!props.videoList || !props.videoList) {
     errorMsg.value = 'no video'
   }
-
+  initDefaultVideo()
   initDefaultSubtitle()
   initPlaybackRate()
   window.addEventListener('keydown', onKeydown)
@@ -414,11 +455,18 @@ const onEnded = () => {
   videoStatus.value = 'stop'
 }
 
-const playOrPause = () => {
-  if (videoStatus.value === 'stop' || videoStatus.value === 'pause') {
-    videoRef.value?.play()
-  } else {
-    videoRef.value?.pause()
+const playOrPause = async () => {
+  if (videoRef.value) {
+    try {
+      if (videoStatus.value === 'stop' || videoStatus.value === 'pause') {
+        await videoRef.value.play()
+      } else {
+        videoRef.value.pause()
+      }
+    } catch (e) {
+      console.error(e)
+      errorMsg.value = 'Cannot play the video'
+    }
   }
 }
 
@@ -493,6 +541,10 @@ const displayMenu = () => {
 
 const onMouseLeaveContainer = () => {
   isDisplayMenu.value = false
+}
+
+const onErrorVideo = () => {
+  errorMsg.value = 'Error!'
 }
 
 /**
@@ -611,6 +663,23 @@ const updateSubtitle = (newSubtitle: VueVideoPlayerSubtitle | null) => {
   lastSubtitleIndex.value = currentSubtitleIndex.value
 }
 
+const updateQuality = (newVideoQuality: VueVideoPlayerVideo) => {
+  if (videoRef.value) {
+    const findIndex = props.videoList.findIndex(video => video.quality === newVideoQuality.quality)
+    if (findIndex >= 0) {
+      currentVideoIndex.value = findIndex
+    }
+
+    nextTick(() => {
+      if (videoRef.value) {
+        videoRef.value.currentTime = currentTime.value
+        if (videoStatus.value === 'play')
+          videoRef.value.play()
+      }
+    })
+  }
+}
+
 const toggleSubtitle = (bool: boolean) => {
   const tempLastSubtitleIndex = lastSubtitleIndex.value >= 0 && props.subtitleList && props.subtitleList.length > 0
     ? lastSubtitleIndex.value : 0
@@ -621,6 +690,15 @@ const toggleSubtitle = (bool: boolean) => {
     updateSubtitle(null)
   }
   lastSubtitleIndex.value = tempLastSubtitleIndex
+}
+
+const initDefaultVideo = () => {
+  if (props.videoList) {
+    const findIndex = props.videoList.findIndex(subtitle => !!subtitle.default)
+    currentVideoIndex.value = findIndex >= 0 ? findIndex : -1
+  } else {
+    currentVideoIndex.value = -1
+  }
 }
 
 /**

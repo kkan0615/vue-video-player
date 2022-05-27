@@ -3,9 +3,22 @@ export type VueVideoPlayerVideoStatus = 'stop' | 'play' | 'pause'
 export type VueVideoPlayerVideo = Pick<HTMLSourceElement,
 'src' | 'type'> & {
   label: string
+  quality?: string
+  default?: boolean
 }
 export type VueVideoPlayerSubtitle = Pick<HTMLTrackElement,
 'src' | 'srclang' | 'default' | 'label' | 'kind'>
+
+export interface ExtendSettingContentChild {
+  isCheck: boolean
+  label: string
+}
+
+export interface ExtendSettingContent {
+  icon?: string
+  label: string
+  children: ExtendSettingContentChild[]
+}
 
 export interface VueVideoPlayerLabels {
   speed: string

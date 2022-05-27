@@ -9,6 +9,9 @@
       <ul
         class="vue-video-player-drop-menu-content-list"
       >
+        <slot
+          name="prependSettingContend"
+        />
         <li
           class="vue-video-player-drop-menu-content-list-item"
           @click="changeCurrentMenuIndex(1)"
@@ -63,6 +66,7 @@
         </li>
         <li
           class="vue-video-player-drop-menu-content-list-item"
+          @click="changeCurrentMenuIndex(3)"
         >
           <div
             class="vue-video-player-drop-menu-content-list-item--icon"
@@ -77,6 +81,9 @@
             {{ labelList.quality }}
           </div>
         </li>
+        <slot
+          name="appendSettingContend"
+        />
       </ul>
     </div>
     <!-- Speed -->
@@ -186,6 +193,50 @@
         </li>
       </ul>
     </div>
+    <!-- quality -->
+    <div
+      v-show="currentMenuIndex === 3"
+      style="height: 100%;"
+    >
+      <div
+        class="vue-video-player-drop-menu-content-title-container"
+      >
+        <m-arrow-back-icon
+          class="vue-video-player-drop-menu-content-title-container--icon"
+          @click="changeCurrentMenuIndex(0)"
+        />
+        <div
+          class="vue-video-player-drop-menu-content-title-container--title"
+        >
+          {{ labelList.quality }}
+        </div>
+      </div>
+      <hr>
+      <ul
+        class="vue-video-player-drop-menu-content-list"
+      >
+        <li
+          v-for="videoQuality in videoQualityList"
+          :key="videoQuality.realIndex"
+          class="vue-video-player-drop-menu-content-list-item"
+          @click="changeQuality(videoQuality)"
+        >
+          <div
+            class="vue-video-player-drop-menu-content-list-item--icon"
+          >
+            <m-check-icon
+              v-if="currentVideoIndex === videoQuality.realIndex"
+              :size="18"
+            />
+          </div>
+          <div
+            class="vue-video-player-drop-menu-content-list-item--label"
+          >
+            {{ videoQuality.quality }}
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -194,12 +245,13 @@ export default {
 }
 </script>
 <script setup lang="ts">
-import { inject, PropType, ref } from 'vue'
+import { computed, inject, PropType, ref } from 'vue'
 import {
+  ExtendSettingContent,
   VueVideoPlayerDefaultLabels,
   VueVideoPlayerDefaultPlaybackRateList,
   VueVideoPlayerLabels,
-  VueVideoPlayerSubtitle
+  VueVideoPlayerSubtitle, VueVideoPlayerVideo
 } from '@/types'
 import MArrowBackIcon from '../components/icons/MArrowBackIcon.vue'
 import MCheckIcon from '../components/icons/MCheckIcon.vue'
@@ -213,6 +265,11 @@ const props = defineProps({
     type: Object as PropType<HTMLVideoElement>,
     required: true,
     default: null,
+  },
+  videoList: {
+    type: Array as PropType<VueVideoPlayerVideo[]>,
+    required: true,
+    default: () => [] as VueVideoPlayerVideo[]
   },
   labelList: {
     type: Object as PropType<VueVideoPlayerLabels>,
@@ -229,6 +286,16 @@ const props = defineProps({
     required: false,
     default: () => [] as VueVideoPlayerSubtitle[]
   },
+  extendSettingContent: {
+    type: Object as PropType<ExtendSettingContent>,
+    required: false,
+    default: () => []
+  },
+  currentVideoIndex: {
+    type: Number,
+    required: true,
+    default: -1,
+  },
   currentPlaybackRate: {
     type: Number,
     required: true,
@@ -244,11 +311,23 @@ const props = defineProps({
 const emits = defineEmits<{
   (e: 'update:playbackRate', newPlaybackRate: number): void
   (e: 'update:subtitle', subtitle: VueVideoPlayerSubtitle | null): void
+  (e: 'update:quality', subtitle: VueVideoPlayerVideo | null): void
 }>()
 
 const changeIsOpen = inject('changeIsOpen') as (bool: boolean) => void
 
 const currentMenuIndex = ref(0)
+
+const videoQualityList = computed(() => {
+  let result: (VueVideoPlayerVideo & {realIndex: number})[] = []
+  if (props.videoList && props.videoList.length) {
+    result = props.videoList.map((video, index) => {
+      return { ...video, realIndex: index }
+    }).filter((video) => !!video.quality)
+  }
+
+  return result
+})
 
 const changeCurrentMenuIndex = (index: number) => {
   currentMenuIndex.value = index
@@ -260,6 +339,10 @@ const changePlaybackRate = (newPlaybackRate: number) => {
 
 const changeSubtitle = (subtitle: VueVideoPlayerSubtitle | null) => {
   emits('update:subtitle', subtitle)
+}
+
+const changeQuality = (video: VueVideoPlayerVideo | null) => {
+  emits('update:quality', video)
 }
 
 const togglePictureInPicture = () => {
