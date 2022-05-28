@@ -32,6 +32,10 @@
   .primary-color-icon {
     fill: $vue-video-player-primary-color;
   }
+
+  .h-full {
+    height: 100%;
+  }
 }
 
 .vue-video-player-error-container {
@@ -56,7 +60,7 @@
 
   &-subtitle {
     white-space: pre-wrap;
-    background-color: black;
+    background-color: $vue-video-player-subtitle-background;
     font-size: 32px;
   }
 }

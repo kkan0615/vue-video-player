@@ -18,7 +18,7 @@
         ref="videoRef"
         crossorigin="Access-Control-Allow-Origin: *"
         preload="metadata"
-        :src="currentVideo ? currentVideo.src : null"
+        :src="currentVideo ? currentVideo.src : undefined"
         :loop="loop"
         class="vue-video-player-video"
         :style="{
@@ -31,18 +31,6 @@
         @ended="onEnded"
         @canplay="onCanplay"
       >
-        <!-- Video -->
-        <!--        <source-->
-        <!--          v-for="(video, index) in videoList"-->
-        <!--          :key="`video-${index}`"-->
-        <!--          :src="video.src"-->
-        <!--          :type="video.type"-->
-        <!--        >-->
-        <!--        <source-->
-        <!--          v-if="currentVideo"-->
-        <!--          :src="currentVideo.src"-->
-        <!--          :type="currentVideoIndex.type"-->
-        <!--        >-->
         <!-- Subtitle -->
         <track
           v-if="currentSubtitle"
@@ -208,7 +196,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
 import {
-  ExtendSettingContent,
   VueVideoPlayerDefaultLabels,
   VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerLabels,
   VueVideoPlayerSubtitle,
@@ -231,26 +218,7 @@ const props = defineProps({
   videoList: {
     type: Array as PropType<VueVideoPlayerVideo[]>,
     required: true,
-    default: () =>
-      [
-        {
-        // @TODO: Remove it when publish
-          src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-          // src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
-          type: 'video/mp4',
-          label: '720px',
-          quality: '720px',
-          default: true,
-        },
-        {
-          // @TODO: Remove it when publish
-          // src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-          src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
-          type: 'video/webm',
-          quality: '480px'
-        },
-
-      ] as VueVideoPlayerVideo[]
+    default: () => [] as VueVideoPlayerVideo[]
   },
   height: {
     type: String,
@@ -291,13 +259,6 @@ const props = defineProps({
     type: Array as PropType<VueVideoPlayerSubtitle[]>,
     required: false,
     default: () => [
-      // @TODO: Remove it when publish
-      // {
-      //   label: 'pt',
-      //   kind: 'subtitles',
-      //   srclang: 'pt',
-      //   src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2-subtitles-pt-BR.vtt'
-      // },
       {
         label: 'pt',
         kind: 'subtitles',
@@ -323,11 +284,6 @@ const props = defineProps({
     type: Object as PropType<VueVideoPlayerLabels>,
     required: false,
     default: () => VueVideoPlayerDefaultLabels,
-  },
-  extendSettingContent: {
-    type: Object as PropType<ExtendSettingContent>,
-    required: false,
-    default: () => []
   },
   subtitleClass: {
     type: [Object, String],

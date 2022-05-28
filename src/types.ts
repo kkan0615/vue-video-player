@@ -9,17 +9,6 @@ export type VueVideoPlayerVideo = Pick<HTMLSourceElement,
 export type VueVideoPlayerSubtitle = Pick<HTMLTrackElement,
 'src' | 'srclang' | 'default' | 'label' | 'kind'>
 
-export interface ExtendSettingContentChild {
-  isCheck: boolean
-  label: string
-}
-
-export interface ExtendSettingContent {
-  icon?: string
-  label: string
-  children: ExtendSettingContentChild[]
-}
-
 export interface VueVideoPlayerLabels {
   speed: string
   subtitle: string

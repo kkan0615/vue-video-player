@@ -1,6 +1,6 @@
 <template>
   <div
-    style="height: 100%;"
+    class="h-full"
   >
     <!-- Main menu -->
     <div
@@ -89,7 +89,7 @@
     <!-- Speed -->
     <div
       v-show="currentMenuIndex === 1"
-      style="height: 100%;"
+      class="h-full"
     >
       <div
         class="vue-video-player-drop-menu-content-title-container"
@@ -134,7 +134,7 @@
     <div
       v-if="subtitleList && !!subtitleList.length"
       v-show="currentMenuIndex === 2"
-      style="height: 100%;"
+      class="h-full"
     >
       <div
         class="vue-video-player-drop-menu-content-title-container"
@@ -196,7 +196,7 @@
     <!-- quality -->
     <div
       v-show="currentMenuIndex === 3"
-      style="height: 100%;"
+      class="h-full"
     >
       <div
         class="vue-video-player-drop-menu-content-title-container"
@@ -247,7 +247,6 @@ export default {
 <script setup lang="ts">
 import { computed, inject, PropType, ref } from 'vue'
 import {
-  ExtendSettingContent,
   VueVideoPlayerDefaultLabels,
   VueVideoPlayerDefaultPlaybackRateList,
   VueVideoPlayerLabels,
@@ -286,11 +285,6 @@ const props = defineProps({
     required: false,
     default: () => [] as VueVideoPlayerSubtitle[]
   },
-  extendSettingContent: {
-    type: Object as PropType<ExtendSettingContent>,
-    required: false,
-    default: () => []
-  },
   currentVideoIndex: {
     type: Number,
     required: true,
@@ -311,7 +305,7 @@ const props = defineProps({
 const emits = defineEmits<{
   (e: 'update:playbackRate', newPlaybackRate: number): void
   (e: 'update:subtitle', subtitle: VueVideoPlayerSubtitle | null): void
-  (e: 'update:quality', subtitle: VueVideoPlayerVideo | null): void
+  (e: 'update:quality', subtitle: VueVideoPlayerVideo): void
 }>()
 
 const changeIsOpen = inject('changeIsOpen') as (bool: boolean) => void
@@ -341,7 +335,7 @@ const changeSubtitle = (subtitle: VueVideoPlayerSubtitle | null) => {
   emits('update:subtitle', subtitle)
 }
 
-const changeQuality = (video: VueVideoPlayerVideo | null) => {
+const changeQuality = (video: VueVideoPlayerVideo) => {
   emits('update:quality', video)
 }
 

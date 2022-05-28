@@ -1,3 +1,5 @@
+# It's beta version!
+
 # vue-video-player
 video player made by vue component
 
@@ -34,14 +36,33 @@ import '@kkan0615/vue-video-player/dist/style.css'
 ```
 
 ## Props
-| Name             | Type            | Default | Description                  |
-|------------------|-----------------|---------|------------------------------|
-| videoList        | video[] (array) | []      | Video list                   |
-| height           | string          | 600px   | Video height                 |
-| width            | string          | 600px   | Video width                  |
-| initVolume       | number          | 100     | 0 to 100, first volume size  |
-| initPlaybackRate | number          | 1       | 0 to 2, first volume size    |
-| disable          | boolean         | false   | Disable to press any buttons |
+| Name             | Type               | Default                                      | Description                  |
+|------------------|--------------------|----------------------------------------------|------------------------------|
+| videoList        | video[] (array)    | []                                           | Video list                   |
+| height           | string             | 600px                                        | Video height                 |
+| width            | string             | 600px                                        | Video width                  |
+| poster           | string             | ''                                           | picture url before start     |
+| loop             | boolean            | false                                        | Loop the video               |
+| initVolume       | number             | 100                                          | 0 to 100, first volume size  |
+| initPlaybackRate | number             | 1                                            | 0 to 2, first volume size    |
+| videoObjectFit   | object-fit (style) | 1                                            | object fit style             |
+| subtitleList     | Subtitle[] (array) | []                                           | Subtitle list                |
+| disable          | boolean            | false                                        | Disable to press any buttons |
+| playbackRateList | number[] (array)   | [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0] | Playback rate list           |
+| labelList        | label[] (array)    | (Check the README.md)                        | label(i18n) list             |
+| subtitleClass    | string             | ''                                           | subtilte class               |
+
+### label list
+```
+{
+  speed: 'speed',
+  subtitle: 'subtitle',
+  noSubtitle: 'no subtitle',
+  pictureInPicture: 'picture in picture',
+  quality: 'quality',
+}
+```
+Copy it and change the values
 
 ## Slot
 | Name                  | Description                                                    |
@@ -134,6 +155,7 @@ We plan to update it later!
 ```
 
 ## Support me
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/youngjinkwak)
 
 ## What we do next?
 ### Hide pip mode with following code
