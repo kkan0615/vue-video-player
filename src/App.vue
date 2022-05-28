@@ -258,22 +258,7 @@ const props = defineProps({
   subtitleList: {
     type: Array as PropType<VueVideoPlayerSubtitle[]>,
     required: false,
-    default: () => [
-      {
-        label: 'pt',
-        kind: 'subtitles',
-        srclang: 'pt',
-        src: new URL('./assets/sample.vtt', import.meta.url) as any,
-        default: false,
-      },
-      {
-        label: 'en',
-        kind: 'subtitles',
-        srclang: 'en',
-        src: new URL('./assets/sample2.vtt', import.meta.url) as any,
-        default: true,
-      }
-    ] as VueVideoPlayerSubtitle[]
+    default: () => [] as VueVideoPlayerSubtitle[]
   },
   playbackRateList: {
     type: Array as PropType<number[]>,
@@ -362,7 +347,7 @@ onBeforeUnmount(() => {
 
   window.removeEventListener('keydown', onKeydown)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
-  if (videoRef.value) {
+  if (videoRef.value && videoRef.value.textTracks && videoRef.value.textTracks.length) {
     videoRef.value.textTracks[0].removeEventListener('cuechange', onCueChange)
   }
 })
