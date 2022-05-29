@@ -236,22 +236,7 @@ const props = defineProps({
   videoList: {
     type: Array as PropType<VueVideoPlayerVideo[]>,
     required: true,
-    default: () =>[
-      {
-        // @TODO: Remove it when publish
-        src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-        type: 'video/mp4',
-        label: '720px',
-        quality: '720px',
-        default: true,
-      },
-      {
-        // @TODO: Remove it when publish
-        src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
-        type: 'video/webm',
-        quality: '480px'
-      },
-    ] as VueVideoPlayerVideo[]
+    default: () =>[] as VueVideoPlayerVideo[]
   },
   height: {
     type: String,
@@ -291,22 +276,7 @@ const props = defineProps({
   subtitleList: {
     type: Array as PropType<VueVideoPlayerSubtitle[]>,
     required: false,
-    default: () => [
-      {
-        label: 'pt',
-        kind: 'subtitles',
-        srclang: 'pt',
-        src: new URL('./assets/sample.vtt', import.meta.url) as any,
-        default: false,
-      },
-      {
-        label: 'en',
-        kind: 'subtitles',
-        srclang: 'en',
-        src: new URL('./assets/sample2.vtt', import.meta.url) as any,
-        default: true,
-      }
-    ] as VueVideoPlayerSubtitle[]
+    default: () => [] as VueVideoPlayerSubtitle[]
   },
   playbackRateList: {
     type: Array as PropType<number[]>,
