@@ -58,24 +58,25 @@
           {{ currentSubtitleCue }}
         </span>
       </div>
+      <!-- floating container -->
+      <div
+        class="vue-video-player-float-container"
+        @click="playOrPause"
+      >
+        <!-- Play button -->
+        <div
+          class="vue-video-player-middle-button"
+        >
+          <m-play-icon
+            v-if="videoStatus === 'stop' || videoStatus === 'pause'"
+            :size="300"
+          />
+        </div>
+      </div>
+      <!-- Controller -->
       <div
         class="vue-video-player-controller-container"
       >
-        <!-- Middle button container -->
-        <div
-          class="vue-video-player-middle-button-container"
-          @click="playOrPause"
-        >
-          <!-- Play button -->
-          <div
-            class="vue-video-player-middle-button"
-          >
-            <m-play-icon
-              v-if="videoStatus === 'stop' || videoStatus === 'pause'"
-              :size="300"
-            />
-          </div>
-        </div>
         <div
           v-show="(videoStatus === 'stop' || videoStatus === 'pause') || isDisplayMenu === true"
           class="vue-video-player-controller"
@@ -188,8 +189,24 @@
     <!-- Error message box -->
     <div
       v-if="errorMsg"
+      class="vue-video-player-error-container"
     >
-      {{ errorMsg }}
+      <slot
+        name="errorContainer"
+      >
+        <div
+          class="vue-video-player-error-container-inner"
+        >
+          <m-error-icon
+            :size="48"
+          />
+          <div
+            class="vue-video-player-error-container--message"
+          >
+            {{ errorMsg }}
+          </div>
+        </div>
+      </slot>
     </div>
   </div>
 </template>
@@ -213,12 +230,28 @@ import MFullscreenIcon from './components/icons/MFullScreenIcon.vue'
 import MFullscreenExitIcon from './components/icons/MFullScreenExitIcon.vue'
 import MClosedCaptionIcon from './components/icons/MClosedCaption.vue'
 import MClosedCaptionOffIcon from './components/icons/MClosedCaptionOff.vue'
+import MErrorIcon from './components/icons/MError.vue'
 
 const props = defineProps({
   videoList: {
     type: Array as PropType<VueVideoPlayerVideo[]>,
     required: true,
-    default: () => [] as VueVideoPlayerVideo[]
+    default: () =>[
+      {
+        // @TODO: Remove it when publish
+        src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        type: 'video/mp4',
+        label: '720px',
+        quality: '720px',
+        default: true,
+      },
+      {
+        // @TODO: Remove it when publish
+        src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
+        type: 'video/webm',
+        quality: '480px'
+      },
+    ] as VueVideoPlayerVideo[]
   },
   height: {
     type: String,
@@ -258,7 +291,22 @@ const props = defineProps({
   subtitleList: {
     type: Array as PropType<VueVideoPlayerSubtitle[]>,
     required: false,
-    default: () => [] as VueVideoPlayerSubtitle[]
+    default: () => [
+      {
+        label: 'pt',
+        kind: 'subtitles',
+        srclang: 'pt',
+        src: new URL('./assets/sample.vtt', import.meta.url) as any,
+        default: false,
+      },
+      {
+        label: 'en',
+        kind: 'subtitles',
+        srclang: 'en',
+        src: new URL('./assets/sample2.vtt', import.meta.url) as any,
+        default: true,
+      }
+    ] as VueVideoPlayerSubtitle[]
   },
   playbackRateList: {
     type: Array as PropType<number[]>,
@@ -297,6 +345,7 @@ const currentSubtitleIndex = ref(-1)
 const lastSubtitleIndex = ref(-1)
 /* Error message */
 const errorMsg = ref('')
+/* Tap events handlers */
 
 const formattedDuration = computed(() => {
   const fixedSeconds = parseFloat(duration.value.toFixed(2))
@@ -321,7 +370,6 @@ const currentVideo = computed(() => {
     : null
 })
 
-
 /**
  * Current subtitle (Track)
  */
@@ -332,14 +380,15 @@ const currentSubtitle = computed(() => {
 })
 
 onMounted(() => {
-  if (!props.videoList || !props.videoList) {
-    errorMsg.value = 'no video'
+  if (!props.videoList || !props.videoList.length) {
+    errorMsg.value = props.labelList?.noVideo
+  } else {
+    initDefaultVideo()
+    initDefaultSubtitle()
+    initPlaybackRate()
+    window.addEventListener('keydown', onKeydown)
+    document.addEventListener('fullscreenchange', onFullscreenChange)
   }
-  initDefaultVideo()
-  initDefaultSubtitle()
-  initPlaybackRate()
-  window.addEventListener('keydown', onKeydown)
-  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onBeforeUnmount(() => {
@@ -406,26 +455,8 @@ const playOrPause = async () => {
       }
     } catch (e) {
       console.error(e)
-      errorMsg.value = 'Cannot play the video'
+      errorMsg.value = props.labelList?.errorPlaying
     }
-  }
-}
-
-/**
- * Play the video
- */
-const onClickPlayBtn = () => {
-  if (videoRef.value?.paused) {
-    videoRef.value?.play()
-  }
-}
-
-/**
- * Pause the video
- */
-const onClickPauseBtn = () => {
-  if (!videoRef.value?.paused) {
-    videoRef.value?.pause()
   }
 }
 
@@ -484,8 +515,11 @@ const onMouseLeaveContainer = () => {
   isDisplayMenu.value = false
 }
 
+/**
+ * Error handler about video
+ */
 const onErrorVideo = () => {
-  errorMsg.value = 'Error!'
+  errorMsg.value = props.labelList?.errorPlaying
 }
 
 /**
@@ -604,6 +638,10 @@ const updateSubtitle = (newSubtitle: VueVideoPlayerSubtitle | null) => {
   lastSubtitleIndex.value = currentSubtitleIndex.value
 }
 
+/**
+ * Update video quality, same way as change the video
+ * @param newVideoQuality
+ */
 const updateQuality = (newVideoQuality: VueVideoPlayerVideo) => {
   if (videoRef.value) {
     const findIndex = props.videoList.findIndex(video => video.quality === newVideoQuality.quality)
@@ -621,6 +659,10 @@ const updateQuality = (newVideoQuality: VueVideoPlayerVideo) => {
   }
 }
 
+/**
+ * Toggle subttile
+ * @param bool - if it's true, turn on the subtitle. Else, turn off the subtitle
+ */
 const toggleSubtitle = (bool: boolean) => {
   const tempLastSubtitleIndex = lastSubtitleIndex.value >= 0 && props.subtitleList && props.subtitleList.length > 0
     ? lastSubtitleIndex.value : 0

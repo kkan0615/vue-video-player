@@ -55,12 +55,13 @@ import '@kkan0615/vue-video-player/dist/style.css'
 ### label list
 ```
 {
+  noVideo: 'No video',
+  errorPlaying: 'Sorry there are some errors to play the video',
   speed: 'speed',
   subtitle: 'subtitle',
   noSubtitle: 'no subtitle',
   pictureInPicture: 'picture in picture',
   quality: 'quality',
-}
 ```
 Copy it and change the values
 
@@ -72,6 +73,7 @@ Copy it and change the values
 | betweenPlayAndVolume  | between play and volume button (usually for next video button) |
 | prependSettingContend | front of setting content list item                             |
 | appendSettingContend  | back of setting content list item                              |
+| errorContainer        | Error container                                                |
 
 ## Key event
 | Key        | Description   |
@@ -112,10 +114,10 @@ Please use url not from local directory
 Please use url not from local directory
 
 ### Object fit
-contain – the video will be scaled to fit the container while preserving the aspect ratio, letterboxing will be present around the video
-cover – the video is scaled to fill the container while preserving the aspect ratio, the video will be clipped
-fill – the video is scaled to fill the container without preserving the aspect ratio, the video will be stretched
-none – video is not resized
+- contain – the video will be scaled to fit the container while preserving the aspect ratio, letterboxing will be present around the video
+- cover – the video is scaled to fill the container while preserving the aspect ratio, the video will be clipped
+- fill – the video is scaled to fill the container without preserving the aspect ratio, the video will be stretched
+- none – video is not resized
 
 ## How to add more list item in setting menu
 

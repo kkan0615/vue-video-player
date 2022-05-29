@@ -10,6 +10,8 @@ export type VueVideoPlayerSubtitle = Pick<HTMLTrackElement,
 'src' | 'srclang' | 'default' | 'label' | 'kind'>
 
 export interface VueVideoPlayerLabels {
+  noVideo: string
+  errorPlaying: string
   speed: string
   subtitle: string
   noSubtitle: string
@@ -18,6 +20,8 @@ export interface VueVideoPlayerLabels {
 }
 
 export const VueVideoPlayerDefaultLabels: VueVideoPlayerLabels = {
+  noVideo: 'No video',
+  errorPlaying: 'Sorry there are some errors to play the video',
   speed: 'speed',
   subtitle: 'subtitle',
   noSubtitle: 'no subtitle',
