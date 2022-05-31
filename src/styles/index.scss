@@ -5,6 +5,7 @@
   position: relative;
   background: $vue-video-player-background;
   color: $vue-video-player-primary-color;
+  overflow: hidden;
 
   button, input[type="submit"], input[type="reset"] {
     background: none;
@@ -93,7 +94,7 @@
 
 .vue-video-player-float-container {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   cursor: pointer;
   width: 100%;
   top: 0;

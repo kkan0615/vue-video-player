@@ -167,4 +167,3 @@ if (!('pictureInPictureEnabled' in document)) {
   }
 ```
 ### Add loading panel
-### Add Error message panel

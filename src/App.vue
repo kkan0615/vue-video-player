@@ -236,7 +236,24 @@ const props = defineProps({
   videoList: {
     type: Array as PropType<VueVideoPlayerVideo[]>,
     required: true,
-    default: () =>[] as VueVideoPlayerVideo[]
+    default: () => import.meta.env.DEV ?
+      [
+        {
+          // @TODO: Remove it when publish
+          src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+          type: 'video/mp4',
+          label: '720px',
+          quality: '720px',
+          default: true,
+        },
+        {
+          // @TODO: Remove it when publish
+          src: 'https://brenopolanski.github.io/html5-video-webvtt-example/MIB2.webm',
+          type: 'video/webm',
+          quality: '480px'
+        },
+      ] as VueVideoPlayerVideo[]
+      : [] as VueVideoPlayerVideo[]
   },
   height: {
     type: String,
@@ -673,6 +690,9 @@ const initPlaybackRate = () => {
   }
 }
 
+/**
+ * Timer for current time progress
+ */
 const initTimer = () => {
   timer.value = setInterval(() => {
     currentTime.value = videoRef.value?.currentTime || 0
@@ -689,6 +709,9 @@ const destroyTimer = () => {
   }
 }
 
+/**
+ * Timer for menu
+ */
 const initMenuTimer = () => {
   destroyMenuTimer()
   isDisplayMenu.value = true
@@ -712,6 +735,10 @@ initTimer()
  */
 defineExpose({
   playOrPause,
+  updatePlaybackRate,
+  updateSubtitle,
+  updateQuality,
+  toggleSubtitle,
 })
 </script>
 <style
