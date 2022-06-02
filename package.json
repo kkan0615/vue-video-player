@@ -3,7 +3,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.0.5",
+  "version": "0.0.5-1",
   "author": "Youngjin Kwak",
   "description": "Vue 3 video player",
   "repository": "https://github.com/kkan0615/vue-video-player",
