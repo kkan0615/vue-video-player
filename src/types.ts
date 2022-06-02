@@ -25,7 +25,7 @@ export const VueVideoPlayerDefaultLabels: VueVideoPlayerLabels = {
   speed: 'speed',
   subtitle: 'subtitle',
   noSubtitle: 'no subtitle',
-  pictureInPicture: 'picture in picture',
+  pictureInPicture: 'pip',
   quality: 'quality',
 }
 

@@ -211,7 +211,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
+import  { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue'
 import {
   VueVideoPlayerDefaultLabels,
   VueVideoPlayerDefaultPlaybackRateList, VueVideoPlayerLabels,
